@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Language  Processing   Systems</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <script type="text/javascript"
+          src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js">
+  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+    <link href="../../assets/styles/article.css" rel="stylesheet" type="text/css" /> 
+</head>
+
+<body class=umt-slides>
+    <nav id="course-nav">
+      <ul>
+      </ul>
+    </nav>
+
+    <div class="umt-content">
+      <div><section data-level="h1"><h1>Language  Processing   Systems</h1><section data-level="h2"><h2>C Compilers</h2><p>A typical C compiler is usually set up as a driver program which
+runs other separate programs.  For example, with gcc:
+</p><dl><dt> Compiler <code>cc1</code> </dt><dd><p>    Compiled <code>*.c</code> C file to <code>*.s</code> assembly language file.
+</p></dd><dt> Assembler <code>as</code> </dt><dd><p>    Assembles <code>*.s</code> assembly language file to <code>*.o</code> object file.
+    The object file is a binary file in a specific format which
+    exports certain symbols and imports symbols it depends on.
+</p></dd><dt> Linker <code>ld</code> </dt><dd><p>    Links several object files together with libraries to produce
+    an executable.  There are two kinds of linkers:
+</p><ul><li><p><strong>Static linker</strong>: Links in all code and produces a fully
+       self-contained executable.
+</p></li><li><p><strong>Dynamic linker</strong>: Links in all the object files but only links
+       in references to the libraries.  The executable is not
+       self-contained and the libraries will be linked in when the
+       executable is run.
+</p></li></ul><p>    Most modern systems use <strong>Dynamic Linked Libraries</strong> (DLLs).  There
+    are disadvantages like 
+    <a href="https://en.wikipedia.org/wiki/DLL_Hell">DLL Hell</a>, but has big advantages like smaller executables and
+    the possibility of having multiple concurrently executing programs
+    share the same library code in memory (AKA <strong>Dynamic Shared
+    Objects</strong>, explaining the <code>.so</code> library extension used in Unix).
+</p></dd></dl></section><section data-level="h2"><h2>A Demo Program</h2><p>File  <a href="code/c-demo/main.c">main.c:</a>
+</p><pre class="hljs language-c">#include &quot;f1.h&quot;
+#include &quot;f2.h&quot;
+
+#include &lt;stdio.h>
+#include &lt;stdlib.h>
+
+int main(int argc, const char *argv[]) {
+  int a = atoi(argv[1]);
+  int b = atoi(argv[2]);
+  printf(&quot;value is %d\n&quot;, f1(a, b) + f2(a, b));
+  return 0;
+}
+</pre><p>File  <a href="code/c-demo/f1.c">f1.c:</a>
+</p><pre class="hljs language-c">#include &quot;f1.h&quot;
+
+int f1(int a, int b) {
+  return a + b;
+}
+</pre><p>File  <a href="code/c-demo/f2.c">f2.c:</a>
+</p><pre class="hljs language-c">#include &quot;f2.h&quot;
+
+int f2(int a, int b) {
+  return a * b;
+}
+</pre><p>  <a href="code/c-demo/f1.s">f1.s</a> assembly code;   <a href="code/c-demo/f2.s">f2.s</a> assembly code.
+</p></section><section data-level="h2"><h2>Compiler Flow</h2><figure id="id-2fvnknpxwr3" class="visjs"></figure><script type="module">
+    function f() {
+  const nodes = [
+    { id: "f1_c", label: "Source File\nf1.c", level: 0, },
+    { id: "main_c", label: "Source File\nmain.c", level: 0, },
+    { id: "f2_c", label: "Source File\nf2.c", level: 0, },
+
+    { id: "cc1_f1", label: "Compiler\ncc1", shape: "ellipse",
+      color: "coral", level: 1,  },
+    { id: "cc1_main", label: "Compiler\ncc1", shape: "ellipse",
+      color: "coral",  level: 1,},
+    { id: "cc1_f2", label: "Compiler\ncc1", shape: "ellipse",
+      color: "coral",  level: 1, },
+
+    { id: "f1_s", label: "Assembly File\nf1.s",  level: 2,},
+    { id: "main_s", label: "Assembly File\nmain.s",  level: 2,},
+    { id: "f2_s", label: "Assembly File\nf2.s",  level: 2,},
+
+    { id: "as_f1", label: "Assembler as", shape: "ellipse",
+      color: "coral",  level: 3, },
+    { id: "as_main", label: "Assembler as", shape: "ellipse",
+      color: "coral", level: 3, },
+    { id: "as_f2", label: "Assembler as", shape: "ellipse",
+      color: "coral", level: 3, },
+
+    { id: "f1_o", label: "Object File\nf1.o", level: 4, },
+    { id: "main_o", label: "Object File\nmain.o", level: 4, },
+    { id: "f2_o", label: "Object File\nf2.o", level: 4, },
+
+    { id: "libs", label: "Libraries\n(printf, atoi)", level: 4, },
+
+    { id: "libs2", label: "Runtime\nLibraries\n(printf, atoi)", level: 5, },
+    { id: "linker", label: "Linker ld", shape: "ellipse",
+      color: "coral", level: 5, },
+
+    { id: "dld", label: "Dynamic Linker", shape: "ellipse",
+      color: "coral", level: 6, },
+    { id: "exec", label: "Executable", level: 6, },
+
+
+    { id: "in", label: "3 4", shape: "text", level: 7, },
+    { id: "run", label: "Run", shape: "ellipse", color: "coral", level: 7, },
+    { id: "out", label: "19", shape: "text", level: 7, },
+  ];
+  const edges = [
+    { from: "f1_c", to: "cc1_f1", },
+    { from: "main_c", to: "cc1_main", },
+    { from: "f2_c", to: "cc1_f2", },
+
+    { from: "cc1_f1", to: "f1_s", },
+    { from: "cc1_main", to: "main_s", },
+    { from: "cc1_f2", to: "f2_s", },
+
+    { from: "f1_s", to: "as_f1", },
+    { from: "main_s", to: "as_main", },
+    { from: "f2_s", to: "as_f2", },
+  
+    { from: "as_f1", to: "f1_o", },
+    { from: "as_main", to: "main_o", },
+    { from: "as_f2", to: "f2_o", },
+
+    { from: "libs", to: "linker", },
+    { from: "f1_o", to: "linker", },
+    { from: "main_o", to: "linker", },
+    { from: "f2_o", to: "linker", },
+
+    { from: "linker", to: "exec", },
+    { from: "libs2", to: "dld", },
+
+
+    { from: "dld", to: "run", },
+    { from: "exec", to: "run", },
+    { from: "in", to: "run", label: "input", },
+    { from: "run", to: "out", label: "output", },
+
+   ];
+
+   return { nodes, edges, };  
+}
+
+
+    const options = {"nodes":{"shape":"box"},"edges":{"arrows":"to"},"layout":{"hierarchical":{"direction":"UD","sortMethod":"directed"}}};
+    document.addEventListener('DOMContentLoaded', () => {
+      const data = f(vis);
+      const container = document.querySelector('#id-2fvnknpxwr3');
+      new vis.Network(container, data, options);
+    });
+  </script></section></section></div>
+    </div>
+
+    <script type="module" src="../../assets/scripts/slide-controls.mjs"></script>
+    <script type="module" src="../../assets/scripts/nav.mjs"></script> 
+    <script type="module" src="../../assets/scripts/highlight.mjs"></script>
+</body>
+</html>
+

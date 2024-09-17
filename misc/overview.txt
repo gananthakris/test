@@ -1,0 +1,9 @@
+The course will describe the interface to a modern OS (Linux).  It
+will require advanced C programming (the first few weeks of the course
+will be spent on teaching C).  There will be 5 projects some of
+which will build on each other: 1) A program using standard C; 2)
+Anonymous pipes; 3) Named pipes with daemon; 4) Shared memory. 5)
+Network multi-threaded programming.  The first 4 projects will be
+individual projects; the last project will be done in a group of 2
+students.  There will also be 4-5 homework assignments, pop quizzes,
+midterm + final.

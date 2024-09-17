@@ -1,0 +1,47 @@
+                     C S  5 5 1 :   S l i d e s
+
+
+Course slides will usually be up around an hour before class.  If you
+would like to print them out, it is probably a good idea to wait
+around a week or so after the class which covered the slides as they
+may be corrected or enhanced.  To print or save as PDF, simply use the
+*print* dialog on your browser.
+
+
+  + .<syllabus/syllabus.html> Syllabus.
+
+  + .<./advanced-c/advanced-c.html>  "Advanced C".
+
+
+%%%
+
+  + .<./c-std-lib/c-std-lib.html>
+
+  + .<./unix-intro/unix-intro.html>
+
+  + .<./unix-io/unix-io.html>
+
+  + .<./filedir/filedir.html>
+
+  + .<./processes/processes.html>
+
+  + .<./pipes/pipes.html>
+
+  + .<./daemons/daemons.html>
+
+  + .<./linking/linking.html>
+
+  + .<./map-reduce/map-reduce.html>
+
+  + .<./posix-ipc/posix-ipc.html>
+
+  + .<./threads/threads.html>
+
+  + .<./procrel/procrel.html>
+
+  + .<./security/security.html>
+
+  + .<./apparch/apparch.html>
+
+
+  %%%

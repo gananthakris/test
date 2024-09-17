@@ -1,0 +1,45 @@
+	C S  5 5 1 :  D o c u m e n t a t i o n
+
+
+This pages links documents relevant to this course.  It will be updated
+as the course progresses.
+
+  + "Jens Gustedt", .<https://inria.hal.science/hal-02383654v1/document>
+    "Modern C".
+
+  + "Mike Banahan, Declan Brady and Mark Doran",
+     .<https://publications.gbdirect.co.uk/c_book/> "The C Book".
+     Note that the material is dated in that it covers only ISO C and
+     does not cover C99.
+
+
+  + "Nick Parlante",
+    .<http://cslibrary.stanford.edu/101/EssentialC.pdf> "Essential C".
+
+  + .<https://web.archive.org/web/20181230041359if_/http://www.open-std.org/jtc1/sc22/wg14/www/abq/c17_updated_proposed_fdis.pdf> "C17 Draft Standard".
+
+  + "Michael B. McLaughlin",
+    .<https://www.syncfusion.com/succinctly-free-ebooks/cplusplus/>
+    "C++ Succinctly".
+
+  + "Bjarne Stroustrup and Herb Sutter",
+    .<https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines>
+    "C++ Core Guidelines".
+
+
+  + .<http://www.gnu.org/software/gdb/documentation/>"GDB Manual"
+    for the GNU Debugger.
+
+  + .<http://www.gnu.org/software/ddd/manual>"DDD Manual" for a GUI
+    front-end to <tt>gdb</tt>.
+
+  + .<http://www.gnu.org/software/emacs/manual>"Emacs Manual"
+
+  + .<http://www.gnu.org/software/make/manual>"Make Manual".
+
+  + .<http://www.unix.org/version3/>"Single Unix
+    Specification".
+
+  + .<http://www.gnu.org/software/libc/manual/>"The GNU C Library
+    Manual".
+

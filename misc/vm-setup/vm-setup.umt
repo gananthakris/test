@@ -1,0 +1,500 @@
+			C o u r s e    V M   S e t u p
+
+
+Each student is being given a virtual machine which is dedicated to this
+course.  You may use it for any activities relevant to this course or
+your CS interests.
+
+Note that you will have exclusive access to this VM via its IP address
+which will typically start with `128.226`.  All programming work for
+this course *must* be done on your VM.  *Do not attempt to use
+remote.cs*; it will not work as the software installed there may not be
+up-to-date.
+
+The VM can only be accessed using ssh from *within* the campus
+network accessed using the campus VPN.
+
+The VM runs Ubuntu 24.04.  Software which will be required by the
+course is .<./setup.sh?lang=sh> pre-installed, but it is possible that you may
+need to install additional software during the course of the semester.
+
+You should make sure that you perform each of the following steps:
+
+  # Ensure .</bing-cs-docs/remote-access/remote-access.html> "remote
+    access" to your VM using x2go.  Make sure that you change your
+    password.
+
+  # Set up a git repository on your VM to mirror the course git repository.
+
+  # Set up a github repository for working on projects.
+
+
+Setting up remote access to your VM is detailed in the document linked
+above.  The rest of this document assumes that the remote access has
+been set up and concentrates on setting up git repositories on your
+VM.
+
+                          Git  Setup
+			  ==========
+
+You will be using .<https://git-scm.com/doc> git for accessing all
+course material. 
+
+  + All course material is maintained on a git repository
+    hosted on a CS department machine.  You will be mirroring
+    this repository on your VM.
+
+    You should access course files only via this mirror.
+    *DO NOT DOWNLOAD MATERIAL DIRECTLY FROM THE WEBSITE*.
+
+  + You should maintain all your personal course files on a private
+    git repository hosted on .<https://github.com> github.com.
+
+This document provides step-by-step directions for mirroring the
+course repository and setting up a github repository.  You
+can obtain basic familiarity with `git` by looking at the copious
+documentation and tutorials available on the web.  This
+.<https://missing.csail.mit.edu/2020/version-control/> presentation is
+recommended.
+
+
+			.=git-setup= Git Setup
+			======================
+
+Set up your global git identity on your VM:
+
+.code(lang=sh)
+```
+$ git config --global user.name "Jane Doe"
+$ git config --global user.email "jdoe@binghamton.edu"
+```
+
+Substitute your name and email address suitably above.
+
+                Mirror Course Git Repository on your VM
+                =======================================
+
+  # .=mirror= If not already done, create a public-private key-pair on
+    your VM:
+
+    .code(lang=sh)
+    ```
+    $ ssh-keygen 
+    ```
+
+    If you accept the defaults, you will create a private key in
+    `~/.ssh/id_rsa` and the corresponding public key in
+    `~/.ssh/id_rsa.pub`.  The former should be retained on
+    your VM whereas the latter may be distributed to machines
+    to which you would like to access from your VM.
+
+  # Copy the public member of the above key-pair to `remote.cs`:
+
+      `$ ssh-copy-id -i ~/.ssh/id_rsa` "LOGIN"`@remote.cs.binghamton.edu`
+
+
+    where "LOGIN" is your login-id on `remote.cs`.
+
+    You will be prompted for your password on `remote.cs`.
+
+    Verify that you can now ssh from your VM to `remote.cs` without having
+    to provide your password.
+
+  # Clone the course website into your home directory:
+  
+
+      `$ cd ~` .;
+      `$ git clone` "LOGIN"`@remote.cs.binghamton.edu:~umrigar/git-repos/cs551.git` 
+
+    where "LOGIN" is your login-id on `remote.cs`.  All the files
+    contained within the course website should be copied into a
+    `cs551` sub-directory.
+
+    If you need to type in your `remote.cs` password, you have not
+    set up your ssh key correctly.  Please review the earlier step
+    to see where you may have gone wrong.
+
+  # Go into the newly cloned `cs551` directory.  You should then see
+    all the course website files.  *You should never be writing into
+    this directory.*
+
+			Maintaining the Course Repository Clone
+			=======================================
+
+You can set up automated updates for your `cs551` course repository.
+You can also manually update it and use git to track changes.
+
+
+     	    	  .=cron= Automatically Tracking cs551 Changes
+		  --------------------------------------------
+
+You should set up a cron job to update your `~/cs551` directory from
+the course git repository:
+
+.code(lang=sh)
+```
+$ EDITOR=YOUR_FAVORITE_EDITOR crontab -e
+```
+
+where `YOUR_FAVORITE_EDITOR` is the command you use to start your
+preferred editor.  It should open up showing you an initial `crontab`
+file.  Add the following line at the end:
+
+.code(lang=sh)
+```
+BB * * * * cd ~/cs551; git pull > /dev/null
+```
+
+where `BB` is your B-number modulo 60.  Ensure that you have a newline
+at the end of this line.  Save the file and exit your editor.
+
+The cron job should update your repository every hour at `BB` minutes
+past the hour (by specifying the minutes using part of your B-number,
+we ensure that students do not all update at the same time, potentially
+causing an overload).  
+
+You should treat this directory as a *read-only directory*.
+
+
+                Manually Tracking cs551 Changes
+                -------------------------------
+
+If necessary, you can also manually update your `~/cs551` directory:
+
+     .code(lang=sh)
+     ```
+     $ ( cd ~/cs551;  git pull )
+     ```
+
+You can get a summary of all git changes by running a Ruby script:
+
+.code(lang=sh)
+```
+$ cd ~/cs551
+$ ./bin/git-changes.rb .
+```
+
+This will output a summary of all git changes since the last time you
+ran the script (it records the time via a timestamp stored in
+`~/cs551/.last-login`). It will not produce any output the first
+time you run the script.
+
+If you want to see all the commits in a particular directory like `hw/hw1`:
+
+.code(lang=sh)
+```
+$ cd ~/cs551
+$ git log --oneline -- hw/hw1
+dcdef92 minor hw1 changes
+05fc1a1 added hw1; minor correction to prj1
+$
+```
+
+Your commit id's and messages will differ.
+
+If you want to see the details of a particular commit, use:
+
+.code(lang=sh)
+```
+$ git log --stat dcdef92^!
+```
+
+To see the diff's for a particular commit-id:
+
+.code(lang=sh)
+```
+$ git show dcdef92
+```
+
+To restrict the diff's to a particular path:
+
+.code(lang=sh)
+```
+$ git show dcdef92 -- hw/hw1/hw1.umt
+```
+                Setting Up a Github Repository
+                ==============================
+
+You should maintain all your personal course material within git using
+a private repository on a git provider like .<https://github.com>
+github.com.
+
+
+                      Quick Start
+                      -----------
+
+If you know what you are doing, this `tl;dr` section should largely suffice:
+
+  # Set up a personal github account and create a *private* `i551` git
+    repository.  Choose the github options to generate a `.gitignore`
+    for c development and initialize your repository with a `README`.
+
+  # Clone your github repository into your home directory on your
+    VM. 
+
+  # Use a `submit` subdirectory within the cloned directory for
+    working on projects.  
+
+The following sections explain each of the above steps in detail.
+
+
+                Setting Up A Git Hub Repository Details
+		---------------------------------------
+
+You can set up a *private* git repository called `i551` on github.   This repository can be
+used for working on course assignments like projects.
+
+  # Point a browser to .<https://github.com> github.com.
+
+  # Click on `Sign Up`, and complete the form.  You may choose any
+    appropriate *Username*, but it is strongly recommended that you
+    use the user-name associated with your `binghamton.edu` email (if
+    it is available).
+
+    %%%
+    Please ensure that you provide your `binghamton.edu` email address
+    in the *Email address* field.  This may make it slightly easier
+    for the grader to associate your github account with your BU id.
+    %%%
+
+  # Please complete all necessary steps to complete your registration
+    on github after satisfying their captcha and submitting the form.
+
+  # Set up your account appropriately.  On the github page, access
+    your account using the user icon on the top right of the page and
+    selecting "Settings".  Select *SSH and GPG keys* from the left
+    hand menu, then click  *New SSH key*.
+
+    On a terminal in your VM `cat ~/.ssh/id_rsa.pub` and then
+    copy-and-paste the output of that command into the provided *Key*
+    box.  Submit the form to set up your new key.
+
+  # To set up a repository for this course, click on the green *New*
+    button on your .<https://github.com> "github home page".
+
+      # Fill in the repository name as `i551` (this is absolutely
+        essential).
+
+      # Provide a suitable description for the repository.
+
+      # Make sure that you set up your repository as *Private*.
+
+      # Select `Add a README file`.
+
+      # Specify a `.gitignore` file for `node`.
+
+    Hit the *Create repository* button.
+
+  %%%
+  # Go to your repository using the link you will now find on your
+    github homepage. Go to `Settings->Collaborators` from the
+    left-hand side navigation.  Add the grader with github user id
+    `TBA` as a collaborator.
+
+    As there are many similar names and some people may have multiple
+    accounts, *make 100% sure that you have the correct github
+    accounts* (the above "ID" must match).
+
+    This will provide the grader access to your repository once the
+    invitation to collaborate is accepted.
+  %%%
+
+                  Initializing Your Repository on your VM
+                  ---------------------------------------
+
+Clone your github repository into your home directory:
+
+  `$ cd ~` .;
+  `$ git clone` "YOUR_GITHUB_PROJECT_URL" .;
+
+You can copy and paste `YOUR_GITHUB_PROJECT_URL` from your github
+project page.  Click the green *<> Code* button and then copy the
+*SSH* url into your clipboard by using the copy widget on the
+right of the url.
+
+If you get an error when doing so, verify that you have correctly uploaded
+your public ssh key to github.
+
+
+If you `cd` over to your `i551` directory and do a `ls -a` you should
+see both the `README.md` and `.gitignore` files.  Feel free to add
+names/patterns into `.gitignore` file for files which should be
+ignored by git.  For example, if you are using emacs as your text
+editor, you may want to add in a line containing `*~` to tell git to
+ignore emacs backup files.
+
+Make sure that all updates have been pushed over to github:
+
+.code(lang=sh)
+```
+$ cd ~/i551
+$ git status -s #see if there are changes you want to commit
+$ git commit -a -m 'SOME COMMIT MSG' #commit if necessary
+$ git push #push changes to github
+```
+
+You should feel free to create any other subdirectories within your
+`i551` directory.
+
+%%%
+The only directory which will be monitored for
+submitted assignments is the `submit` directory in the `main` branch.
+%%%
+
+
+                Working On Projects
+                ===================
+
+.=prjWork= A common git workflow is to work on new program features
+in separate git branches and merge each feature branch in to the
+`main` branch when the feature is complete.  This course will expose
+you to this workflow by regarding each project as a separate feature
+and using a separate branch for developing each project.
+
+The following lists generic steps necessary to work on your first project
+`prj1`.  You will need to adapt those steps for subsequent projects.
+
+  + Note that what is listed here are generic instructions, if the
+    project provides specific instructions, then those instructions
+    override those provided here.
+    
+  + The git commit comments specified by the `-m` option are only examples;
+    you may replace them with more suitable comments.
+
+  # Create a branch and a new directory for working on your project:
+
+    .code(lang=sh)
+    ~~~
+    $ cd ~/i551                #goto local clone of github
+    $ git checkout -b prj1     #create new branch
+    $ git push -u origin prj1  #push new branch to remote
+    $ mkdir -p submit          #ensure you have a submit dir
+    $ cd submit       	       #enter project dir
+    $ cp -r ~/cs551/projects/prj1/prj1-sol .  #copy provided files
+    $ cd prj1-sol              #change over to new project dir
+    ~~~
+
+  # Commit into git:
+
+    .code(lang=sh)
+    ~~~
+    $ git add .   #add contents of directory to git 
+    $ git commit -m 'started prj1' #commit locally
+    $ git push -u origin prj1      #push branch with changes
+                                   #to github
+    ~~~
+
+  # Work on your project.  You should get into the habit of committing and
+    pushing frequently, making it easy for you to recover from unsuccessful
+    changes or a crashed VM.  Some git commands which may prove useful:
+
+      + List local branches using `git branch -l`.  The current branch
+        will have an asterisk next to it.
+
+      + Switch the current branch to branch `B` using `git checkout B`.
+
+      + Add new files, directories and changes to the git staging
+        area using `git add`.
+
+        .code(lang=sh)
+        ```
+        $ git add *.c   #add all c files in current dir
+        $ git add .     #all all files, dirs, changes in
+                        #current dir to git staging area
+        ```
+
+      + Commit changes locally.
+
+        .code(lang=sh)
+        ```
+        $ git commit -m 'MSG'    #commit staging area
+                                 #with message MSG
+        $ git commit -a -m 'MSG' #commit staging area
+                                 #and all working directory
+				 #changes
+        ```
+
+      + Push all committed local changes to remote github repository
+        using `git push`.
+
+  # .=prj-complete= Once your project is complete, move it over to the main
+    branch and push it to github
+
+    .code(lang=sh)
+    ```
+    $ git checkout main #go to main branch
+    $ git status -s #should show no outstanding changes;
+                    #otherwise add and commit till git status
+                    #shows no outstanding changes
+    $ git checkout prj1 #go to project branch
+    $ git status -s #should show no outstanding changes;
+                    #otherwise add and commit till git status
+                    #shows no outstanding changes
+    $ git merge main   #merge any changes from main.
+                       #should not cause any conflicts
+                       #since all and only prj1 changes are
+                       #in this branch
+    $ git commit -m 'merge main' #commit
+    $ git push                     #and push changes 
+    $ git checkout main #back to main branch
+    $ git merge prj1    #should be a fast-foward merge
+    $ git commit -m 'merge prj1 sol'
+    $ git push  #push project on main branch
+    ```
+
+    You should use the github web interface to verify that the
+    project has been updated correctly in github.
+
+    If you are sufficiently paranoid (in general, you should be
+    paranoid when working with computers `:-(` ), you will verify that
+    it is possible to run your project using only what you submitted
+    to github:
+
+    .code(lang=sh)
+    ```
+    $ mkdir -p ~/tmp
+    $ cd ~/tmp
+    $ git clone YOUR_GITHUB_REPO_URL
+    $ cd
+      # setup symlink at same dir level as your i551 symlink
+    $ ln -s tmp/i551 tmp-github-repo
+    $ cd tmp-github-repo/submit/prj1-sol
+    $ npm ci #build your project
+    ```
+
+    You can now test your project.  If everything is ok:
+
+    .code(lang=sh)
+    ```
+    $ rm ~/tmp-github-repo
+    $ cd ~/tmp
+    $ rm -rf i551  #rm cloned project
+    ```
+
+    If you discover errors in your project after your initial
+    submission, you can resubmit; the project submission time
+    will be the time of the last submit.
+
+  # Once you are happy with your project submission, you can
+    clean up the project branch:
+
+    .code(lang=sh)
+    ```
+    $ git push -d origin prj1 #rm remote branch
+    $ git branch -d prj1      #rm local branch
+    ```
+
+                            References
+                            ==========
+
+
+.<https://git-scm.com/> "Official Git Site".
+
+Scott Chacon, Ben Straub, .<https://git-scm.com/book/en/v2> "Pro Git".
+
+.<https://git-scm.com/docs> "Reference Documentation"
+
+Anish Athalye, .<https://missing.csail.mit.edu/2020/version-control/>
+"Version Control (Git)"; Part of .<https://missing.csail.mit.edu/>
+"MIT Missing Semester"; Highly recommended.
+

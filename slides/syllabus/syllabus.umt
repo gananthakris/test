@@ -1,0 +1,613 @@
+                C o u r s e    S y l l a b u s
+
+
+
+
+                         Instructor Info
+                         ===============
+ 
+          Zerksis D. Umrigar .; 
+          *Office Hours*: MWF: 12:00 - 12:55p in EB N26, or by appointment .;
+          *Zoom Link*: .<https://binghamton.zoom.us/my/umrigar> "" .;
+          *Email*: .<mailto:umrigar+cs551@binghamton.edu> umrigar+cs551@binghamton.edu .;
+
+  + Do *not* use the generic `umrigar@bing...` email address; *always*
+    use the course specific `umrigar+cs551@bing...` email address.
+          
+  + I will always try to reply to email within 24 hours (often much
+    sooner).  To ensure prompt attention, alway used the `+cs551`
+    email address.
+
+%%%
+                           Zoom Office Hours
+                           =================
+
+  + Office hours will be set up with a waiting room; i.e. students can
+    feel free to share their work with me.
+
+  + If I feel that what is being discussed is of general interest and
+    there are students in the waiting room, I may go ahead and let them in.
+    
+  + If there are no other students in the zoom meeting room, I may not
+    notice your arrival right away.  Please say something to grab my
+    attention and give me a couple of minutes to respond.
+%%%
+
+                        .=tas= Teaching Assistants
+                        ==========================
+
+TBA
+
+%%%
+
+  :Student Last Name Starting with `A`-`K`:
+     *TA*: Smriti Janaswamy .;
+     *Email*: .<mailto:sjanasw1@binghamton.edu>sjanasw1@binghamton.edu .;
+     *Office Hours*: Mon 11a - 12p on .<https://binghamton.zoom.us/j/91703766569> zoom ; Thu 3 - 4p in EB N00.
+
+
+  :Student Last Name Starting with `L`-`Z`:
+     *TA*: Yohei Hayamizu .;
+     *Email*: .<mailto:yhayami1@binghamton.edu> yhayami1@binghamton.edu .;
+     *Office Hours*:  Tue 2:00 - 3:00p, Thu 4:00 - 5:00p in EB N00.
+
+  + TAs responsible for *all*  grading except quizzes:
+
+      + Homework Grading.
+
+      + Project Grading.
+
+      + Midterm + Final Grading.
+
+  + All questions regarding grading on an assignment should first be
+    addressed to the TA responsible for that assignment.
+
+  + Usually, I will backup a TA's grading decision unless there is a 
+    clear mistake.
+
+
+%%%
+
+                        Recommended Texts
+                        =================
+
+[TLPI] Michael Kerrisk, "The Linux Programming Interface", No Starch
+Press, 2010.  
+
+"Jens Gustedt", .<https://inria.hal.science/hal-02383654v1/document>
+"Modern C".
+
+[K&R2] Brian Kernighan and Dennis Ritchie, "The C Programming Language",
+2nd Edition, 1988.
+
+Samuel P. Harbison, Guy L. Steele, "C: A Reference Manual", 5th Edition, 
+Prentice Hall, 2002.
+
+
+                         .=weights= Evaluation
+                         =====================
+
+
+```
+      In-class Pop Quizzes (lowest dropped): 11%
+      Projects (lowest dropped)              24%
+      Homeworks (lowest dropped)             15% 
+      Midterm:                               25%
+      Final:                                 25%
+      Extra Credit:		      up to  +3%
+      Attendance:                     up to -16%
+```
+
+
+			Pop Quizzes
+			===========
+
+  + I will be responsible for grading pop quizzes.
+
+  + Lowest quiz grade dropped.
+
+  + Pop quizzes will be held online during class.
+
+  + Students *must bring a laptop to class* in order to take these
+    quizzes.
+
+  + Will be given via a "personal home page" accessed via a *Login*
+    link on the course web site (will be set up shortly after the
+    add/drop deadline).
+
+  + A quiz will usually have 5 questions with 2 points per question +
+    1 point for attempting the quiz.
+
+  + Pop quizzes serve as a partial proxy for class attendance.
+
+  + A pop quiz *must* be started within three minutes of it being
+    announced.  If you are having technical issues, please let me
+    know.
+
+  + If you have a legitimate reason for being unable to attend
+    a class you must email me *before* the class.  If there is
+    a quiz that day, you will be allowed to make it up later.
+
+  + Quizzes will be multiple choice, usually based on random
+    *Exercises* published on the course website.
+
+  + Quizzes are open-book, open-notes, open-web.  Not permissible
+    to collaborate with any person.
+
+
+                                Projects
+                                ========
+
+
+  + Your TA will be responsible for grading all projects.
+
+  + Lowest project grade dropped.
+
+  + Projects must be done in groups of 2 students (you may choose your
+    partner).
+
+  + 5 related projects:
+
+      # A C program using the standard C library.
+
+      # Using anonymous pipes.
+
+      # A daemon using named pipes.
+
+      # Shared memory.
+
+      # A network client-server.
+
+                                Homework Assignments
+                                ====================
+
+  + Lowest homework grade dropped.
+
+  + 4 - 5 homework assignments.
+
+  + Some questions will be simple exercises based on what was covered
+    in class.
+
+  + Some questions will require original thinking.
+
+  + Some questions will require using external resources like the
+    web.
+
+  + Homework assignments will be available on course website.
+
+  + Your homework assignment must be turned in as specified by the TA,
+    typically as a PDF.  You may include multiple files in the
+    submission.
+
+			Midterm and Final
+			=================
+
+  + Your TA will be responsible for grading all exams.
+
+  + On paper.
+
+  + Open-book, open-notes,
+
+  + *No electronic devices*.
+
+  + Similar to homework.
+
+  + Midterm will be held during class time at a time to be announced.
+
+  + Final will be during finals week at a time determined by the university.
+
+
+
+    	 	  	     Extra Credit
+			     ============
+
+Up to 3 extra points can be added to your overall total by contributing
+to a major open source project relevant to this course:
+
+  + Documentation typo fix: 0.5 points.
+
+  + Documentation update: 1 point.
+
+  + Code update: 1-3 points.
+
+In order to obtain the extra credit:
+
+  + Verify whether the open source project and proposed changes
+    qualify by sending me a brief email.
+
+  + Send me a link to the pull request or any relevant emails which prove
+    that your contribution was accepted.
+
+  + The contribution must be made *during this semester* and *before the
+    last week of class*.
+
+Extra credit may also be awarded to students who submit work which
+went way beyond what was expected.  This will be initiated by us; if
+you ask for it, you probably do not qualify.
+
+			Attendance
+			==========
+
+
+  + During some random classes, I will take attendance of some
+    random selection of students.  This may be done multiple
+    times within a single class.
+
+  %%%
+  + Students must respond using chat (using their correct zoom IDs).
+  %%%
+
+  + You may have up to one unexcused absence without any penalty
+    in the semester.
+
+  + You will loose 1 point for the second unexcused absence.
+
+  + You will loose 3 points for each subsequent unexcused absence
+    up to a maximum of -16 points.
+
+  + An absence will be excused if you .<mailto:umrigar+cs551@binghamton.edu>
+    "send me an email" *before class*
+    giving me a reason for the absence.  I may require documentation
+    for the reason.  
+
+                    Assignment of Final Letter Grades
+                    =================================
+
+    + Letter grades will be assigned strictly monotonically based on
+      the numeric course grade.
+
+    + No fixed cutoffs: they will be determined jointly by myself and
+      the TA.
+
+    + The cutoffs will not be published.  This avoids issues caused by
+      some students attempting to game the system by requesting
+      regrading if they feel they just missed a cutoff.
+
+    + A letter grade of A will be only be given for consistent
+      superior work.
+
+    + You will get an F only if you miss turning in a lot of work
+      or submit consistently very poor quality work.
+
+    + If you have an issue with the grading of a particular assignment, it
+      is *imperative* that you see the grader before the final exam.
+
+    + All assigned letter grades are final unless there is some kind
+      of clerical error.  *Do not send emails* requesting a different
+      letter grade unless there has been a clerical error.
+
+    + Details for .<../../misc/course-grading/course-grading.html>
+      "Course Grading" are available.
+
+                        Academic Honesty
+                        ================
+
+  As per the course
+  .<../../misc/academic-honesty/academic-honesty-policy.html>
+  "Academic Honesty Policy" cheating of any type will be penalized
+  heavily.
+
+    + Minimal penalty: zero on assignment and letter grade dropped by
+      one slot: i.e. an A becomes an A-, a B- becomes a C+, etc.  You
+      will also need to sign a Watson College document which will be
+      added to your file.
+
+    + Permissible to collaborate to understand course material,
+      homework questions or project assignments. *Not permissible to
+      discuss solutions.*
+
+      + If you feel you may have inadvertently crossed the line, then
+        let us know; will not be considered cheating.
+
+      + If submitting an assignment late after the solution has been
+        posted, you should obviously not be looking at the solution.
+
+    + All registered students must sign and complete an
+      .<../../misc/academic-honesty/academic-honesty-statement.html>
+      "Academic Honesty Statement."
+
+
+      			Use of AI Tools
+			===============
+
+  + AI tools will be an important part of your professional toolbox.
+
+  + It is not possible to restrict the use of AI tools.  Instead, they
+    may be used judiciously.
+
+  + If you use AI tools, use them to only supplement your understanding.
+
+  + Since AI tools can produce incorrect or suboptimal results, it is
+    not a good idea to use them when you are not familiar with the
+    material.
+
+  + It will not be possible to use AI tools during the midterm and
+    final since the use of electronic devices is not permitted.  Hence
+    you will need to understand the material in order to obtain a
+    decent grade.
+
+                        Late Submission Policy
+                        ======================
+
+  + You are allowed to submit projects and homework late by up to 3
+    days.
+
+  + You may not use more than 7 late days over all assignments
+    over the entire semester.
+
+  + A day will count as 24 hours, irrespective of holidays or
+    weekends.
+
+  + Late submissions will not be accepted for some assignments,
+    especially before the midterm or towards the end of the
+    semester.
+
+
+       %%%
+       + Late homeworks can be turned in during class or during office
+         hours to either me or the grader.  Alternatively, they can be
+         submitted via my department mailbox or under my door, with
+         the late submission date clearly mentioned on the submission.
+         Please ensure that your course number (CS 551) and section
+         (A or B) are also clearly mentioned.
+       %%%
+
+
+                                Course Web Site
+                                ===============
+       
+
+    + All course material on course web site at  
+      .<http://zdu.binghamton.edu/cs551> "".
+
+    + Course web site mirrored at 
+      .<http://cs.binghamton.edu/~umrigar/cs551> "".  Dynamic portions
+      of the web site will not be mirrored.
+
+    + Website password protected against bots.  You will be provided
+      the user-id and password via brightspace or email.
+
+    + Slides usually available an hour before class.  Slides may be
+      updated up to one week after class to fix mistakes or make
+      enhancements.
+
+    + Course web site available via `git` repository at
+      `ssh://`"user"`@remote.cs.binghamton.edu/~umrigar/git-repos/cs551.git`.
+      Useful for tracking changes.
+
+
+                 Course Material, Submissions and Receiving Grades
+		 =================================================
+
+   + The course website will be used for *all* course announcements
+     and material.
+
+   + Homework assignments and projects will be submitted using
+     the procedure to be set up by TA.
+
+   + Quizzes will be submitted online using the `Login` link on the
+     course website (currently inactive).
+
+   + The midterm and final will be submitted on paper using
+     standard examination blue books.
+
+   + All grades will be made available via Brightspace.
+
+
+                        .=mailing-list= Course Mailing List
+                        ===================================
+
+    + All students registered for the course should have been
+      subscribed to the .<mailto:cs-451-551-umrigar@cs.binghamton.edu>
+      CS551 mailing list.
+
+    + To change the email address via which you are subscribed to the
+      list or would like to edit your subscription options, please
+      visit this
+      .<https://www.cs.binghamton.edu/mailman/listinfo/cs-451-551-umrigar>
+      "list maintenance page".
+
+    + Feel free to use the mailing list for general discussion/questions
+      relevant to the course.
+
+    + *DO NOT* use the mailing list to send emails to me specific to
+      your personal situation.  Use
+      .<mailto:umrigar+cs551@binghamton.edu>
+      umrigar+cs551@binghamton.edu instead.
+
+			.=personal-emails=   Personal Emails
+			====================================
+
+  + Please .<mailto:umrigar+cs551@binghamton.edu> "email me" if you
+    have a non-technical personal situation.
+
+  + If emailing your TA re. a grading issue, please CC me.
+
+  + For technical questions, please email both me and the course TAs.
+
+  + Be as specific as possible in your question.
+
+  + *Do not send screenshots of code*.  Doing so makes it impossible
+    to cut-and-paste the code.  Instead, include your code as *text*
+    within your email.
+
+  + Do not send code for an entire project or function.  Instead,
+    create a
+    .<https://stackoverflow.com/help/minimal-reproducible-example>
+    "minimal reproducible example" which demonstrates the problem you
+    are facing.  In my experience, attempting to create such an
+    example will often result in your resolving the problem without
+    any assistance.
+
+     	      	  	    Virtual Machines
+			    ================
+
+  + Once course enrollments have stabilized, each student will be
+    assigned a Linux-based virtual machine which can be used for
+    course projects and other related work.
+
+  + Each VM comes preinstalled with all the software needed for the
+    course. If you prefer to use your own computing environment, a
+    list of installed software is .<../../misc/vm-setup/setup.sh>
+    available. *However, it is your responsibility to ensure that
+    submitted code runs within your VM environment*.
+
+  + Each student has `sudo` access to their VM.  This makes it
+    possible for the student to install any other required software.
+
+  + Imperative that students
+    .</bing-cs-docs/remote-access/remote-access.html> "set up GUI
+    access" to their VM as that will be needed for subsequent
+    projects.  The recommended software is x2go.
+
+      	    		Classes
+			=======
+
+  + You are not allowed to use personal electronic devices like
+    laptops or cell-phones during lectures (you must however bring a
+    laptop to class in order to take pop quizzes).
+
+  + If in-person classes are canceled by the university due to
+    weather, the class will be held at the regular time on
+    .<https://binghamton.zoom.us/my/umrigar> zoom.
+
+  + If for some reason, I am unable to teach a class in-person, the
+    class will be held at the regular time on
+    .<https://binghamton.zoom.us/my/umrigar> zoom after posting an
+    announcement.
+
+  + If you are feeling unwell, you should not attend class.
+
+  + In the event that you are unable to attend class, you should
+    inform me *before* the class.  If you have a valid excuse and
+    there is a pop quiz, you will be allowed to make up the quiz.
+
+  + Multiple absences will require documentation.
+
+  %%%
+  + Wearing masks during classes is *mandatory*.
+  %%%
+
+  + To accomodate students having excused absences, all classes
+    will be streamed on .<https://binghamton.zoom.us/my/umrigar> zoom.
+
+
+  + Links to recordings of the zoom sessions will be made available on
+    the course website in .<../../misc/videos> misc/videos.
+
+  + Please feel free to remind me if I start a class without recording
+    on zoom.
+
+                Catalog Description
+                ===================
+
+"A detailed study of the application program interface of a modern operating system. File operations, concurrency, processes, threads, inter-process communication, synchronization, client-server programming, multi-tier programming."
+
+*Credit Hours*: 3 .;
+*Contact Hours*: 3 hours lecture .;
+*Personal Hours*: Expect at least 6.5 hours of work outside class each week. 
+
+
+                  Prerequisite Knowledge
+                  ======================
+
+    + Familiarity with programming in an object-oriented language like
+      Java or Python.
+
+    + Basic data-structures and algorithms.
+
+    + Comfort within a Unix environment.
+
+
+                       Aims of Course
+                       ==============
+
+  + To apply theoretical concepts from other courses in a practical setting.
+
+  + To get a good understanding of programming to the API of a modern
+    operating system.
+
+  + To develop expert proficiency in low-level languages.
+
+  + Largely an applied course; not particularly academic.
+
+
+                       Main Topics
+                       ===========
+
+Concentration on Unix systems-programming API; minimal coverage of kernel
+internals.  
+
+  + Advanced C programming.
+
+  + Overview of the C standard libraries.
+
+  + Unix systems introduction.
+
+  + File I/O.
+
+  + Processes and threads.
+
+  + Consequences of computer architecture on performance.
+
+  + Inter-process communication.
+
+  + Network programming introduction.
+
+  + Signals.
+
+  + Concurrent programming.
+
+Will jump around somewhat as projects are assigned.
+
+
+                        Problems
+                        ========
+
+  + If you are having problems, please see me ASAP; *do not wait till
+    the end of the semester*.
+
+  + Flexible regarding deadlines under exceptional circumstances.
+
+  + If you are experiencing undue personal or academic stress at any
+     time during the semester or need to talk with someone about a
+     personal problem or situation, I encourage you to seek support as
+     soon as possible. I am available to talk with you about stresses
+     related to your work in my class.
+
+                       Contact Info for Help
+                       =====================
+
+
+  :Dean of Students Office:
+    607-777-2804
+
+  : Care Team :
+    .<https://www.binghamton.edu/services/care-team/index.html> Website.
+   
+  :Decker Student Health Services Center:
+    607-777-2221
+
+  :University Police:
+    Emergency: 911 (campus phones); 607-777-2222 (cell phones) .;
+    Non-Emergency: 607-777-2393
+
+  :University Counseling Center:
+    607-777-2772
+
+  :Interpersonal Violence Prevention:
+    607-777-3062
+
+  :Harpur Advising:
+    607-777-6305
+
+  :Office of International Student & Scholar Services:
+    607-777-2510
+
+  :University Ombudsman:
+    Main campus: 607-777-2388; University Downtown Center office 607-777-2388
+
+  :Services for Students with Disabilities:
+    607-777-2686 (Voice, TTY)
+
+

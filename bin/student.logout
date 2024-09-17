@@ -1,0 +1,9 @@
+#!/bin/sh
+
+#ensure all user processes are killed on logout
+#bug? may kill below processes too before original one
+ps -u $USER | cut -d ' ' -f1 | xargs kill -9
+
+#remove all ipc facilities
+rm -f /dev/shm/$USER-*
+

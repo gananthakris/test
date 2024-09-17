@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Advanced  C  Topics</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+  <script type="text/javascript"
+          src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js">
+  </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github.min.css">
+    <link href="../../assets/styles/article.css" rel="stylesheet" type="text/css" /> 
+</head>
+
+<body class=umt-slides>
+    <nav id="course-nav">
+      <ul>
+      </ul>
+    </nav>
+
+    <div class="umt-content">
+      <div><section data-level="h1"><h1>Advanced  C  Topics</h1><section data-level="h2"><h2>Overview</h2><ul><li><p>C Standards
+</p></li><li><p>C types.
+</p></li><li><p>Pointers and arrays.
+</p></li><li><p>Using and understanding the limitations of <code>typedef</code>'s.
+</p></li><li><p>Complex declarations.
+</p></li><li><p>ADTs.
+</p></li><li><p>OOP in C.
+</p></li><li><p>C idioms.
+</p></li><li><p>Using asymmetric bounds.
+</p></li><li><p>External variable declarations.
+</p></li><li><p>Using data instead of code.
+</p></li><li><p>Name spaces
+</p></li><li><p>Dynamic memory allocation.
+</p></li><li><p>The C preprocessor.
+</p></li></ul></section><section data-level="h2"><h2>Hello World</h2><pre class="hljs language-c">#include &lt;stdio.h>
+
+int main()
+{
+    printf(&quot;Hello, World!\n&quot;);
+    return 0;
+}
+</pre><ul><li><p><code>#include</code> includes actual textual content on <code>stdio.h</code> header file in
+    compilation unit.
+</p></li><li><p><code>stdio.h</code> provides a declaration for <code>printf()</code>.
+</p></li><li><p><code>return 0</code> returns success exit code to OS (non-<code>0</code> indicates failure).
+    Not required by C11.
+</p></li></ul><p> <a href="https://openrepl.com/">OpenREPL Hello World</a>.
+</p></section><section data-level="h2"><h2>C Compilers</h2><p>A typical C compiler is usually set up as a driver program which
+runs other separate programs.  For example, with gcc:
+</p><dl><dt> C Preprocessor <code>gcc -E</code> </dt><dd><p>    Textual transformation of source file: handles <code>#include</code>
+    directives, <code>#define</code> macro expansion and <code>#if</code>/<code>#ifdef</code>/<code>#ifndef</code>
+    conditional compilation.
+</p></dd><dt> Compiler <code>cc1</code> </dt><dd><p>    Compiled <code>*.c</code> C file to <code>*.s</code> assembly language file.
+</p></dd><dt> Assembler <code>as</code> </dt><dd><p>    Assembles <code>*.s</code> assembly language file to <code>*.o</code> object file.
+    The object file is a binary file in a specific format which
+    exports certain symbols and imports symbols it depends on.
+</p></dd><dt> Linker <code>ld</code> </dt><dd><p>    Links several object files together with libraries to produce
+    an executable.  There are two kinds of linkers:
+</p><ul><li><p><strong>Static linker</strong>: Links in all code and produces a fully
+       self-contained executable.
+</p></li><li><p><strong>Dynamic linker</strong>: Links in all the object files but only links
+       in references to the libraries.  The executable is not
+       self-contained and the libraries will be linked in when the
+       executable is run.
+</p></li></ul><p>    Most modern systems use <strong>Dynamic Linked Libraries</strong> (DLLs).  There
+    are disadvantages like 
+    <a href="https://en.wikipedia.org/wiki/DLL_Hell">DLL Hell</a>, but has big advantages like smaller executables and
+    the possibility of having multiple concurrently executing programs
+    share the same library code in memory (AKA <strong>Dynamic Shared
+    Objects</strong>, explaining the <code>.so</code> library extension used in Unix).
+</p></dd></dl></section><section data-level="h2"><h2>A Demo Program</h2><p>File  <a href="code/c-demo/main.c">main.c:</a>
+</p><pre class="hljs language-c">#include &quot;f1.h&quot;
+#include &quot;f2.h&quot;
+
+#include &lt;stdio.h>
+#include &lt;stdlib.h>
+
+int main(int argc, const char *argv[]) {
+  int a = atoi(argv[1]);
+  int b = atoi(argv[2]);
+  printf(&quot;value is %d\n&quot;, f1(a, b) + f2(a, b));
+  return 0;
+}
+</pre><p>File  <a href="code/c-demo/f1.c">f1.c:</a>
+</p><pre class="hljs language-c">#include &quot;f1.h&quot;
+
+int f1(int a, int b) {
+  return a + b;
+}
+</pre><p>File  <a href="code/c-demo/f2.c">f2.c:</a>
+</p><pre class="hljs language-c">#include &quot;f2.h&quot;
+
+int f2(int a, int b) {
+  return a * b;
+}
+</pre><p>  <a href="code/c-demo/f1.s">f1.s</a> assembly code;   <a href="code/c-demo/f2.s">f2.s</a> assembly code.
+</p></section><section data-level="h2"><h2>Compiler Flow</h2><figure id="id-t4lhz4fckb" class="visjs"></figure><script type="module">
+    function f() {
+  const nodes = [
+    { id: "f1_c", label: "Source File\nf1.c", level: 0, },
+    { id: "main_c", label: "Source File\nmain.c", level: 0, },
+    { id: "f2_c", label: "Source File\nf2.c", level: 0, },
+
+    { id: "cpp_f1", label: "C Preprocessor", shape: "ellipse",
+      color: "coral", level: 1,  },
+    { id: "cpp_main", label: "C Preprocessor", shape: "ellipse",
+      color: "coral",  level: 1,},
+    { id: "cpp_f2", label: "C Preprocessor", shape: "ellipse",
+      color: "coral",  level: 1, },
+
+    { id: "f1_i", label: "Preprocessed\nf1.i",  level: 2,},
+    { id: "main_i", label: "Preprocessed\nmain.i",  level: 2,},
+    { id: "f2_i", label: "Preprocessed\nf2.i",  level: 2,},
+
+    { id: "cc1_f1", label: "Compiler\ncc1", shape: "ellipse",
+      color: "coral", level: 3,  },
+    { id: "cc1_main", label: "Compiler\ncc1", shape: "ellipse",
+      color: "coral",  level: 3,},
+    { id: "cc1_f2", label: "Compiler\ncc1", shape: "ellipse",
+      color: "coral",  level: 3, },
+
+    { id: "f1_s", label: "Assembly File\nf1.s",  level: 4,},
+    { id: "main_s", label: "Assembly File\nmain.s",  level: 4,},
+    { id: "f2_s", label: "Assembly File\nf2.s",  level: 4,},
+
+    { id: "as_f1", label: "Assembler as", shape: "ellipse",
+      color: "coral",  level: 5, },
+    { id: "as_main", label: "Assembler as", shape: "ellipse",
+      color: "coral", level: 5, },
+    { id: "as_f2", label: "Assembler as", shape: "ellipse",
+      color: "coral", level: 5, },
+
+    { id: "f1_o", label: "Object File\nf1.o", level: 6, },
+    { id: "main_o", label: "Object File\nmain.o", level: 6, },
+    { id: "f2_o", label: "Object File\nf2.o", level: 6, },
+
+    { id: "libs", label: "Libraries\n(printf, atoi)", level: 6, },
+
+    { id: "libs2", label: "Runtime\nLibraries\n(printf, atoi)", level: 7, },
+    { id: "linker", label: "Linker ld", shape: "ellipse",
+      color: "coral", level: 7, },
+
+    { id: "dld", label: "Dynamic Linker", shape: "ellipse",
+      color: "coral", level: 8, },
+    { id: "exec", label: "Executable", level: 8, },
+
+
+    { id: "in", label: "3 4", shape: "text", level: 9, },
+    { id: "run", label: "Run", shape: "ellipse", color: "coral", level: 9, },
+    { id: "out", label: "19", shape: "text", level: 9, },
+  ];
+  const edges = [
+    { from: "f1_c", to: "cpp_f1", },
+    { from: "main_c", to: "cpp_main", },
+    { from: "f2_c", to: "cpp_f2", },
+
+    { from: "cpp_f1", to: "f1_i", },
+    { from: "cpp_main", to: "main_i", },
+    { from: "cpp_f2", to: "f2_i", },
+
+    { from: "f1_i", to: "cc1_f1", },
+    { from: "main_i", to: "cc1_main", },
+    { from: "f2_i", to: "cc1_f2", },
+  
+    { from: "cc1_f1", to: "f1_s", },
+    { from: "cc1_main", to: "main_s", },
+    { from: "cc1_f2", to: "f2_s", },
+
+    { from: "f1_s", to: "as_f1", },
+    { from: "main_s", to: "as_main", },
+    { from: "f2_s", to: "as_f2", },
+  
+    { from: "as_f1", to: "f1_o", },
+    { from: "as_main", to: "main_o", },
+    { from: "as_f2", to: "f2_o", },
+
+    { from: "libs", to: "linker", },
+    { from: "f1_o", to: "linker", },
+    { from: "main_o", to: "linker", },
+    { from: "f2_o", to: "linker", },
+
+    { from: "linker", to: "exec", },
+    { from: "libs2", to: "dld", },
+
+
+    { from: "dld", to: "run", },
+    { from: "exec", to: "run", },
+    { from: "in", to: "run", label: "input", },
+    { from: "run", to: "out", label: "output", },
+
+   ];
+
+   return { nodes, edges, };  
+}
+
+
+    const options = {"nodes":{"shape":"box"},"edges":{"arrows":"to"},"layout":{"hierarchical":{"direction":"UD","sortMethod":"directed"}}};
+    document.addEventListener('DOMContentLoaded', () => {
+      const data = f(vis);
+      const container = document.querySelector('#id-t4lhz4fckb');
+      new vis.Network(container, data, options);
+    });
+  </script></section><section data-level="h2"><h2>C Standards</h2><dl><dt>K&amp;R C</dt><dd><p>    No standard.  Described in first edition of Kernighan and
+    Ritchie's <em>The C Programming Language</em>, 1978.  Several incompatible
+    implementations.
+</p></dd><dt>ANSI-C</dt><dd><p>    1989.  Major change included addition of function
+    prototypes; minor change included <code>#</code> and <code>##</code> preprocessor
+    operators.  The language described in the 2nd Edition of <em>The C
+    Programming Language</em>, aka K&amp;R2.
+</p></dd><dt>ISO-C</dt><dd><p>    Basically ANSI-C.
+</p></dd><dt>C95</dt><dd><p>    Amendment 1 to ISO-C, 1994.  Additions for
+    internationalization (I18N) and localization (L10N) with additions
+    for multibyte and wide <code>char</code>s.
+</p></dd></dl></section><section data-level="h2"><h2>C Standards Continued</h2><dl><dt>  <a href="http://www.open-std.org/JTC1/SC22/WG14/www/docs/n1256.pdf">C99</a></dt><dd><p>      Approved end of 90's.  <code>//</code> comments, anywhere declarations,
+      inline functions, macro varargs, <code>_Bool</code> constants <code>true</code> and
+      <code>false</code>, named <code>struct</code> initialization, variable length arrays,
+      <code>struct</code> hack where last member of <code>struct</code> is an incomplete
+      array type standardized, etc.  Implementations close to complete.
+</p></dd><dt>  <a href="http://www.open-std.org/jtc1/sc22/WG14/www/docs/n1570.pdf">C11</a></dt><dd><p>      Features include removal of <code>gets()</code>, multithreading support,
+      alignment specification.
+</p></dd><dt> C17 </dt><dd><p>    C11 fixes.
+</p></dd></dl></section><section data-level="h2"><h2>Integral Types</h2><ul><li><p>In order of non-decreasing size <code>char</code>, <code>short</code>,
+    <code>int</code>, <code>long</code>, <code>long long</code>.  Signed by default, can be made
+    unsigned by using modifier <code>unsigned</code> (but the signed-ness of
+    plain unmodified <code>char</code> is undefined).  Examples (initializers can
+    be omitted, but are usually a good idea whenever possible to avoid
+    uninitialized variable errors):
+</p><pre class="hljs language-c">    unsigned char c1 = 'a', c2 = 'b';
+    char c = c1 + 1;            //signed-ness not known.
+    //suffixes on literals indicate type of literal.
+    long long length = 1024LL;
+    unsigned int index = 0;
+</pre></li><li><p>Exact sizes for integral types are implementation defined, but
+    <code>char</code> is 1 unit of at least 8-bits (usually a byte), <code>short</code> is
+    at least 16 bits, <code>int</code> is at least 16 bits (often 32 bits),
+    <code>long</code> is at least 32 bits and <code>long long</code> is at least 64 bits.
+</p></li><li><p><code>char</code> and <code>short</code> are largely memory types; widened to <code>int</code> when
+    doing arithmetic or when passed to functions without a prototype.
+</p></li><li><p>Most architectures use
+     <a href="https://en.wikipedia.org/wiki/Two%27s_complement">two's
+    complement</a> for representing signed integers.  Results in
+    asymmetrical ranges:  for example, <code>-128</code> to <code>+127</code> for 8-bit and
+    <code>-32768</code> to <code>+32767</code> for 16-bit.
+</p></li></ul></section><section data-level="h2"><h2>Integer Arithmetic and Bitwise Operations</h2><ul><li><p>Arithmetic operators <code>+</code>, <code>-</code> (unary and binary), <code>*</code>,  <code>/</code>,
+    all left-associative with <code>*</code> and <code>/</code> having higher precedence
+    than <code>+</code>, <code>-</code>.
+</p></li><li><p>Bitwise operators and <code>&amp;</code>, or <code>|</code>, complement <code>~</code>.
+</p></li><li><p>Shift operators <code>&lt;&lt;</code> and <code>>></code>.
+</p></li></ul></section><section data-level="h2"><h2>Integer Arithmetic Examples</h2><p>From  <a href="code/arith-bit-ops.c">arith-bit-ops.c:</a>
+</p><pre class="hljs language-c">  //associativity and precedence
+  printf(&quot;1-2-3 = (1-2)-3 = %d, &quot;
+         &quot;2 + 6*5/3 = 2 + ((6*5)/3) = %d\n&quot;,
+         1-2-3, 2 + 6*5/3);
+  //1-2-3 = (1-2)-3 = -4, 2 + 6*5/3 = 2 + ((6*5)/3) = 12
+
+
+  //integer division truncates towards 0
+  printf(&quot;10/4 = %d, -10/4 = %d\n&quot;, 10/4, -10/4);
+  //10/4 = 2, -10/4 = -2
+
+  //remainder has sign of dividend
+  //concatenation of adjacent string literals
+  printf(&quot;10%%4 = %d, -10%%4 = %d, &quot;
+         &quot;10%%-4 = %d, -10%%-4 = %d\n&quot;,
+         10%4, -10%4, 10%-4, -10%-4);
+  //10%4 = 2, -10%4 = -2, 10%-4 = 2, -10%-4 = -2
+
+</pre></section><section data-level="h2"><h2>Bitwise Operators Examples</h2><p>From  <a href="code/arith-bit-ops.c">arith-bit-ops.c:</a>
+</p><pre class="hljs language-c">  //&amp; bitwise-and; | bitwise-or;
+  printf(&quot;3|5 = %d, 3&amp;5 = %d\n&quot;, 3|5, 3&amp;5);
+  //3|5 = 7, 3&amp;5 = 1
+
+  //~ does bitwise complement, %x prints hex
+  printf(&quot;~0 = %d = 0x%x, ~-1 = 0x%x\n&quot;, ~0, ~0, ~-1);
+  //~0 = -1 = 0xffffffff, ~-1 = 0x0
+
+  //&lt;&lt; left-shift; >> right-shift;
+  //u-suffix on literal makes it unsigned
+  printf(&quot;7 &lt;&lt; 3 = 0x%x, ~0 &lt;&lt; 2 = 0x%x\n&quot;
+         &quot;~0 >> 2 = 0x%x, ~0u >> 2 = 0x%x\n&quot;,
+         7 &lt;&lt; 3, ~0 &lt;&lt; 2, ~0 >> 2, ~0u >> 2);
+  //7 &lt;&lt; 3 = 0x38, ~0 &lt;&lt; 2 = 0xfffffffc
+  //~0 >> 2 = 0xffffffff, ~0u >> 2 = 0x3fffffff
+</pre></section><section data-level="h2"><h2>Floating Point Types</h2><ul><li><p>Floating point types: in order of non-decreasing size <code>float</code>,
+    <code>double</code>, <code>long double</code>.
+</p><pre class="hljs language-c">    float result = 0.0;
+    const long double pi2 = 2 * PI;
+</pre><p>    On most architectures, floating point types use
+     <a href="https://en.wikipedia.org/wiki/IEEE_754">IEE 754</a> format:
+    <code>float</code> being 32-bit single-precision, <code>double</code> being 64-bit
+    double-precision, <code>long double</code> or IEEE 128-bit
+    quadruple-precision.  On x86 <code>long double</code> may be a 80-bit
+    extended double.
+</p></li></ul></section><section data-level="h2"><h2>IEEE-754</h2><ul><li><p>IEEE-754 consists of a MSB containing a sign bit \(S\) (<code>0</code>
+    positive, <code>1</code> negative), a biased exponent field \(E\) and a
+    fraction field <em>F</em>.
+</p></li><li><p>The value of a <strong>normalized</strong> number is
+</p>\[    -1^S \times 2^{(e-\texttt{bias})} \times (1 + f)
+\]<p>    where \(e\) is the value of the exponent field as an unsigned
+    binary integer and \(f\) is the value of the fraction field as a
+    fractional binary number.
+</p></li></ul><p><strong>Formats</strong>:
+</p><p><img src="figs/fp-formats.png" width="600">
+</p><ul><li><p>Two representations for zero: <code>+0</code> and <code>-0</code>.
+</p></li><li><p>Exponent field of all zeros and non-zero fraction used to indicate
+    denormalized numbers allowing gradual underflow.
+</p></li><li><p>Exponent field of all ones allows representations for \(\pm\infty\)
+    and <strong>Not-A-Number</strong> <code>NaN</code>.  A <code>NaN</code> does not compare equal to any value,
+    including itself; i.e. <code>NaN == NaN</code> is always <strong>false</strong>.
+</p></li></ul></section><section data-level="h2"><h2>Array Types</h2><p>If <em>T</em> is a type, then <em>T</em><code>[]</code> is of type array of <em>T</em> (corresponds
+to a <strong>sequence</strong> of types <em>T</em>).  Note that the number of elements in the array
+is not part of the type.  No multi-dimensional arrays but can have
+array of arrays.  Examples:
+</p><pre class="hljs language-c">    int a[10];    // uninitialized
+                  // (unless static (top-level) then 0).
+
+    // # of elements determined by initializer (recommended).
+    double piMults[] = { PI, 2 * PI, 3 * PI };
+
+    // uninitialized array of 5 array's of 10 floats.
+    float multi[5][10]; 
+
+    // a 2x2 unit matrix
+    double unit2[][2] = { { 1, 0, },  { 0, 1, }, };
+
+    // a 3x3 unit matrix using c99 designated initializers
+    // unspecified elements initialized to 0.
+    double unit3[3][3] =
+      { [0][0] = 1, [1][1] = 1, [2][2] = 1};
+</pre></section><section data-level="h2"><h2>No String Type</h2><p>C does not have any string type.  However, it does have <strong>string
+literals</strong> which are represented as a sequence of characters or escape
+sequences within double quotes.  Those literals stand for the array of
+character codes for the characters specified by the sequence followed
+by the <code>NUL</code>-character <code>'\0'</code>.
+</p><pre class="hljs language-c">char hello[] = &quot;hello&quot;; // sizeof(hello) == 6
+
+// sizeof(message) == 5
+// possible error, no terminating '\0'
+char message[] = { 'h', 'e', 'l', 'l', 'o' }; 
+
+</pre><p>For this course we are ignoring wide characters, wide character
+strings, and C support for Unicode.
+</p></section><section data-level="h2"><h2>sizeof</h2><p>The <code>sizeof</code> operator returns the number of <code>char</code>'s (bytes) occupied
+by a variable or type.  Return type is of a library-defined type <code>size_t</code>.
+</p><p>In  <a href="code/sizeof.c">sizeof.c:</a>
+</p><pre class="hljs language-c">int main() {
+  // %zu used for print size_t
+  printf(&quot;sizeof short = %zu\n&quot;, sizeof(short));
+  printf(&quot;sizeof int = %zu\n&quot;, sizeof(int));
+
+  printf(&quot;sizeof float = %zu\n&quot;, sizeof(float));
+  printf(&quot;sizeof double = %zu\n&quot;, sizeof(double));
+
+  const char hello[] = &quot;hello&quot;;
+  printf(&quot;sizeof \&quot;hello\&quot; = %zu\n&quot;, sizeof hello);
+
+  const char message[] = {'h', 'e', 'l','l', 'o' };
+  printf(&quot;sizeof {'h', 'e', 'l','l', 'o' } = %zu\n&quot;,
+         sizeof message);
+}
+</pre><p>Results on my computer (sizeof primitives could be different on other
+computers):
+</p><pre>sizeof short = 2
+sizeof int = 4
+sizeof float = 4
+sizeof double = 8
+sizeof &quot;hello&quot; = 6
+sizeof {'h', 'e', 'l','l', 'o' } = 5
+</pre></section><section data-level="h2"><h2>Idiom for Number of Array Elements</h2><p>It is always the case that <code>sizeof(T a[n]) == n*sizeof(T)</code>.
+</p><p>Consider array <code>a[]</code> declared as:
+</p><pre class="hljs language-javascript">  T a[] = { ... };
+</pre><p>The number of elements in the array is given by the expression:
+</p><pre>  sizeof(a)/sizeof(T)
+</pre><p>or equivalently:
+</p><pre>  sizeof(a)/sizeof(a[0])
+</pre></section><section data-level="h2"><h2>Idiom for Number of Array Elements Continued</h2><p>Could use idiom as:
+</p><pre class="hljs language-javascript">  T a[] = { ... };
+  int i;
+  for (i = 0; i &lt; sizeof(a)/sizeof(a[0]); i++) {
+    ...
+  }
+</pre><p>or could package up the idiom in a macro:
+</p><pre class="hljs language-javascript">  #define N_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
+</pre><p>Note that this idiom works only for <code>static</code> or <code>auto</code> allocated arrays.  It
+will not work for dynamically allocated arrays.
+</p></section><section data-level="h2"><h2>Structure Types</h2><ul><li><p>If <em>T1</em>, <em>T2</em>, <code>...</code> <em>Tn</em> are types, then <code>struct {</code> <em>T1</em> <code>t1;</code> <code>...</code>
+    <em>Tn</em> <code>tn; }</code> is a structure type (corresponds to <strong>cartesian product</strong> of
+     types <em>T1</em> \(\times\) <em>T2</em> \(\times \ldots \times\) <em>Tn</em>).
+</p></li><li><p>The fields <code>t1</code>, ..., <code>tn</code> laid out sequentially in memory (with
+    possible padding in between to respect alignment restrictions).
+</p><p>    Examples:
+</p><pre class="hljs language-javascript">    typedef struct { // typedef alias for type
+      double x; 
+      double y 
+    } Point2;  
+    
+    // can be used for singly-linked list node
+    typedef struct _Node {  //_Node is struct tag
+      void *value; 
+      struct _Node *next;
+    } Node;
+</pre></li></ul></section><section data-level="h2"><h2>Structure Types Initialization</h2><pre class="hljs language-javascript">    // positional initialization
+    Point2 line[] = { { 0, 0 }, { 1, 1 }, };
+
+    // preferably use c99 designated initializer
+    Point2 triangle[] = { 
+      { .x = 0, .y = 0 }, 
+      { .y = 1, .x = 0 },
+      { .x = 1, .y = 0 } 
+    }; 
+</pre></section><section data-level="h2"><h2>Alignment</h2><ul><li><p>On many architectures like ARM or RISC-V, primitive types are <strong>required</strong>
+    to be aligned on an address divisibly by their size.  On other architectures
+    (like x86) alignment is necessary for performance.
+</p></li><li><p>A C compiler will typically insert padding between structure
+    fields to respect the alignment restrictions of the target
+    architecture.
+</p></li><li><p>Since we can have an array of structures, the compiler will also
+    insert padding at end of a structure to ensure that alignment
+    restrictions are also respected for the fields within an array.
+</p></li><li><p>A C compiler is not allowed to change the order of the fields
+    in a structure to minimize padding, but the programmer can
+    do so.
+</p></li></ul></section><section data-level="h2"><h2>Alignment Example</h2><p>In  <a href="code/align.c">align.c:</a>
+</p><pre class="hljs language-c">typedef struct {
+  int i;
+  char c;      //pad 3
+  double d;
+  char arr[3]; //pad 5
+} BadAlign;
+
+//static ensures not visible outside this file
+static BadAlign bads[4];
+
+typedef struct {
+  char c;
+  char arr[3];
+  int i;
+  double d;
+} GoodAlign;
+
+static GoodAlign goods[4];
+
+
+</pre></section><section data-level="h2"><h2>Alignment Example Continued</h2><p>In  <a href="code/align.c">align.c:</a>
+</p><pre class="hljs language-c">int main() {
+  printf(&quot;BadAlign: i@%zu, c@%zu, d@%zu, arr@%zu\n&quot;
+         &quot;sizeof(BadAlign) = %zu, sizeof bads = %zu\n&quot;,
+         offsetof(BadAlign, i), offsetof(BadAlign, c),
+         offsetof(BadAlign, d), offsetof(BadAlign, arr),
+         sizeof(BadAlign), sizeof bads);
+
+  printf(&quot;GoodAlign: c@%zu, arr@%zu, i@%zu, d@%zu\n&quot;
+         &quot;sizeof(GoodAlign) = %zu, sizeof goods = %zu\n&quot;,
+         offsetof(GoodAlign, c), offsetof(GoodAlign, arr),
+         offsetof(GoodAlign, i), offsetof(GoodAlign, d),
+         sizeof(GoodAlign), sizeof goods);
+
+}
+</pre><p>Log on my computer:
+</p><pre>BadAlign: i@0, c@4, d@8, arr@16
+sizeof(BadAlign) = 24, sizeof bads = 96
+GoodAlign: c@0, arr@1, i@4, d@8
+sizeof(GoodAlign) = 16, sizeof goods = 64
+</pre></section><section data-level="h2"><h2>Union Types</h2><ul><li><p>If <em>T1</em>, <em>T2</em>, <code>...</code> <em>Tn</em> are types, then <code>union {</code> <em>T1</em> <code>t1;</code>
+    <code>...</code> <em>Tn</em> <code>tn; }</code> is a union type (corresponds to <strong>undiscriminated
+    union</strong> of types <em>T1</em>, <em>T2</em>, \(\ldots\), <em>Tn</em>.
+</p></li><li><p>Fields <code>t1</code>, ..., <code>tn</code> are overlayed in memory.  At any time, only
+    one of <code>T1</code>, <code>...</code>, <code>Tn</code> can exist in the union.
+</p></li><li><p>Consequently, the sizeof the union is the size of the largest
+    <code>Ti</code>.
+</p></li><li><p><strong>Undiscriminated union</strong> means that the compiler does not track
+     which variant of the <code>union</code> is currently stored.  This is as
+     opposed to  <a href="https://en.wikipedia.org/wiki/Tagged_union">sum
+     types</a> (increasingly popular in modern programming languages)
+     which do track the currently stored variant.
+</p></li></ul></section><section data-level="h2"><h2>Union Example</h2><p>A <code>union</code> can often be used where inheritance would be used in
+OO-languages.  Pair with an <code>enum</code> to allow runtime discrimination
+of variants.  Example:
+</p><pre class="hljs language-c">  typedef struct {
+    enum { CIRCLE, RECTANGLE, ... } type;
+    union {
+      struct {
+        Point2 origin;
+        double radius;
+      } circle;
+      struct {
+        Point2 topLeft;
+        double width;
+        double height;
+      } rectangle;
+      ...
+   };                    //anonymous union from c11
+  } Shape;
+</pre></section><section data-level="h2"><h2>Union Example Continued</h2><pre class="hljs language-c">double sum_areas(Shape shapes[], int numShapes) {
+  double sum = 0.0;
+  for (int i = 0; i &lt; numShapes; i++) {
+    switch (shapes[i].type) {
+      case CIRCLE:
+        sum += PI * shapes[i].circle.radius
+                  * shapes[i].circle.radius;
+        break;
+      case RECTANGLE:
+        sum += shapes[i].rectangle.width
+                 * shapes[i].rectangle.height;
+        break;
+      ...
+    }
+  }
+  return sum;
+}  
+</pre></section><section data-level="h2"><h2>Endian Considerations</h2><ul><li><p>Different architectures lay out the bytes within primitive
+    types in different orders.
+</p></li><li><p>Two main  <a href="https://en.wikipedia.org/wiki/Endianness">endian</a> variants:
+</p><dl><dt> <strong>Big Endian</strong> </dt><dd><p>       Most significant bytes are at lower address.
+</p></dd><dt> <strong>Little Endian</strong> </dt><dd><p>       Least significant bytes are at lower address.
+</p></dd></dl><p>    (Names originate from Jonathan Swift's
+    
+    <a href="https://en.wikisource.org/wiki/The_Works_of_the_Rev._Jonathan_Swift/Volume_6/A_Voyage_to_Lilliput/Chapter_4">A Voyage to Lilliput, Chapter IV,
+    Gulliver's Travels</a>, popularized by Danny Cohen in
+     <a href="https://www.rfc-editor.org/ien/ien137.txt">this article</a>
+    published in IEEE Computer magazine in 1981).
+</p></li><li><p>Little endian most common in present popular architectures.
+</p></li><li><p>Most networks transmit bytes in big endian order.
+</p></li></ul></section><section data-level="h2"><h2>Bit Fields</h2><p>The only place where endianness makes a difference in C is when using
+bit-fields within a <code>struct</code>.
+</p><p>The following code uses the fact that a <code>union</code> is <strong>undiscriminated</strong>
+to perform  <a href="https://en.wikipedia.org/wiki/Type_punning">type punning</a>
+(accessing a variable having one type as another type):
+</p><pre class="hljs language-c">int main() {
+  union {
+    unsigned u;
+    struct {
+      // bit fields of size 4
+      unsigned u1: 4;
+      unsigned u2: 4;
+      unsigned u3: 4;
+      unsigned u4: 4;
+      unsigned u5: 4;
+      unsigned u6: 4;
+      unsigned u7: 4;
+      unsigned u8: 4;
+    };
+  } u =
+    { .u1 = 0xd, .u2 = 0xe, .u3 = 0xa, .u4 = 0xd,
+      .u5 = 0xb, .u6 = 0xe, .u7 = 0xe, .u8 = 0xf,
+    };
+  printf(&quot;unsigned u = 0x%x\n&quot;, u.u);
+}
+</pre><p>Log on x86 (little endian):
+</p><pre>unsigned u = 0xfeebdaed
+</pre><p>Log on mips (big endian)
+</p><pre class="hljs language-sh"># cross-compile on x86 for the MIPS RISC architecture
+$ mips-linux-gnu-gcc bit-fields.c \
+     -o mips-bit-fields -static
+$ ./mips-bit-fields 
+unsigned u = 0xdeadbeef
+</pre></section><section data-level="h2"><h2>Pointer Types</h2><ul><li><p>A pointer is nothing but a variable which holds a memory address.
+</p></li><li><p>If <em>T</em> is a type, then <em>T</em> <code>*</code> is of type pointer to <em>T</em>.
+    Examples:
+</p><pre class="hljs language-javascript">    int i = 22;
+    int *iP = &amp;i;        //prefix &amp; takes address
+    int j = *iP;         //dereference iP; j == 22
+    *iP = 42;            //changes i; Note *iP aliases i
+    
+    const int *icP = &amp;i; //value pointed to cannot be
+                         //changed via pointer
+    int *const ciP = &amp;i; //pointer cannot be changed.
+
+    *iP = NULL;          //iP is now invalid
+</pre></li><li><p>If <code>p</code> is declared to be a pointer <code>T *p</code>, then <code>p</code> is an
+    address and <code>*p</code> dereferences the pointer returning
+    the value pointed to of type <code>T</code>.
+</p></li><li><p>On modern architectures, <strong>all</strong> pointers have the same size
+    (irrespective of the pointed-to type): 4 bytes on 32-bit
+    architectures and 8 bytes on 64-bit architectures.
+</p></li></ul></section><section data-level="h2"><h2>Lifetimes</h2><ul><li><p>In any running program code and data entities have lifetimes: the
+    time between when the entity comes to life and the time when it
+    dies.
+</p></li><li><p>Lifetimes can be classified into three categories:
+</p><dl><dt> <strong>Program Lifetime</strong> </dt><dd><p>       The entity is alive for the entire runtime of the program.
+       Typically allocated in a static memory area.  In C, all code
+       and top-level data or data explicitly declared using the
+       <code>static</code> keyword have program lifetimes and the entity
+       is allocated statically (before runtime).
+</p></dd><dt> <strong>Block Lifetime</strong> </dt><dd><p>       The entity is alive only while a block is executing.  Typically
+       allocated on a stack.  In C, all data entities declared within
+       a block without the <code>static</code> keyword have block lifetimes.
+</p></dd><dt> <strong>Indeterminate Lifetime</strong> </dt><dd><p>       A lifetime which does not fit within the above categories.
+       Typically allocated on a heap.  In C, such entities are
+       allocated using <code>malloc()</code> and friends.
+</p></dd></dl></li></ul></section><section data-level="h2"><h2>Lifetimes Demo C Program</h2><pre class="hljs language-c">//static allocation
+const char *GREET = &quot;hello&quot;;
+
+const char *greetMsg(const char *greetee)
+{
+  //manual heap allocation
+  char *msg = malloc(strlen(GREET) + 1 + strlen(greetee) + 1);
+  sprintf(msg, &quot;%s %s&quot;, GREET, greetee);
+
+  //return heap allocated message
+  return msg;
+}
+
+int main() {
+  //stack allocation
+  const char greetee[] = &quot;world&quot;;
+
+  //msg will point to heap
+  const char *msg = greetMsg(greetee);
+  printf(&quot;%s\n&quot;, msg);
+
+  //manual heap deallocation
+  free((void *)msg); //cast to remove const
+  return 0;
+}
+</pre></section><section data-level="h2"><h2> <span id="layout">Typical</span> Program Layout Under Unix</h2><pre>High Addresses
+              +-----------------------------+
+	      |  Env + command-line args    |
+              +-----------------------------+
+	      |				    |
+	      |	          Stack             |
+	      |				    |
+              +------------+----------------+
+	      |		   |		    |
+	      |		   |		    |
+	      |		   v		    |
+	      |				    |
+	      |	          DLLs		    |
+	      |				    |
+	      |		   ^		    |
+	      |		   |		    |
+	      |		   |		    |
+              +------------+----------------+
+	      |				    |
+	      |	          Heap 		    |
+	      |	     			    |
+              +-----------------------------+
+	      |				    |
+	      |  Uninitialized Static Data  |	    
+	      |	         (bss)  	    |
+              +-----------------------------+
+	      |				    |
+	      |	 Initialized Static Data    |
+	      |				    |
+              +-----------------------------+
+	      |				    |
+	      |	    Program Code (text)	    |
+	      |				    |
+              +-----------------------------+
+Low Addresses
+
+</pre><p> <a href="https://www.securitysift.com/windows-exploit-development-part-1-basics/">Different layout</a> 
+under Windows (stack and heap grow away from each other, rather than towards
+each other).
+</p></section><section data-level="h2"><h2>Addresses Demo</h2><p>In  <a href="code/addrs.c">addrs.c:</a>
+</p><pre class="hljs language-c">static char strSpace[1000];
+static char msg[] = &quot;hello&quot;;
+
+//argv[argc] program arguments
+//(includes executable name in argv[0])
+int main(int argc, const char *argv[]) {
+  char *ptr = malloc(argc * sizeof(char *));
+  char *home = getenv(&quot;HOME&quot;);
+  int vals[10];
+
+  printf(&quot;%p: &amp;main (code)\n&quot;, &amp;main);
+  printf(&quot;%p: &amp;msg (initialized data)\n&quot;, &amp;msg);
+  printf(&quot;%p: &amp;strSpace (uninitialized data)\n\n&quot;, &amp;strSpace);
+
+  printf(&quot;%p: ptr (heap data)\n\n&quot;, ptr);
+  printf(&quot;%p: &amp;argv (block data)\n&quot;, &amp;argv);
+  printf(&quot;%p: &amp;argc (block data)\n&quot;, &amp;argc);
+  printf(&quot;%p: &amp;ptr (block data)\n&quot;, &amp;ptr);
+  printf(&quot;%p: &amp;home (block data)\n&quot;, &amp;home);
+  printf(&quot;%p: &amp;vals (block data)\n\n&quot;, &amp;vals);
+
+  printf(&quot;%p: &amp;argv[0] (commmand-line arg)\n&quot;, &amp;argv[0]);
+  printf(&quot;%p: home (env var)\n&quot;, home);
+
+  free(ptr);
+}
+</pre></section><section data-level="h2"><h2>Addresses Demo Log</h2><pre>0x56faf6cb11c9: &amp;main (code)
+0x56faf6cb4010: &amp;msg (initialized data)
+0x56faf6cb4040: &amp;strSpace (uninitialized data)
+
+0x56faf75df2a0: ptr (heap data)
+
+0x7ffd3371ad20: &amp;argv (block data)
+0x7ffd3371ad2c: &amp;argc (block data)
+0x7ffd3371ad30: &amp;ptr (block data)
+0x7ffd3371ad38: &amp;home (block data)
+0x7ffd3371ad40: &amp;vals (block data)
+
+0x7ffd3371ae98: &amp;argv[0] (commmand-line arg)
+0x7ffd3371d3b7: home (env var)
+</pre></section><section data-level="h2"><h2>The <code>void</code> Keyword</h2><p>The <code>void</code> keyword is used for several purposes in C:
+</p><ul><li><p>If a function does not return any value then the return type
+    of that function is declared as returning <code>void</code> as in:
+</p><pre class="hljs language-c">    //flush buffered output to stream
+    void fflush(FILE *stream); 
+</pre></li><li><p>If a function does not take any arguments, then its parameter
+    list is declared <code>void</code> as in:
+</p><pre class="hljs language-c">    int rand(void); //returns a random integer
+</pre><p>    Note that in C, <code>int f()</code> species that <code>f</code> refers to a function
+    which takes <strong>unspecified arguments</strong> (unspecified in number and
+    type).
+</p></li><li><p>To declare a pointer to an unknown type as in <code>void *p</code>.  
+</p><pre class="hljs language-c">    void *malloc(size_t n); //allocate n bytes on heap 
+                            //and return a pointer to it.
+</pre><p>    <code>void *</code> pointers can be passed between functions but it is an error
+    to dereference one.  Commonly used to represent generic objects in C
+    (the same role that <code>Object</code> plays in languages like Java).
+</p></li></ul></section><section data-level="h2"><h2>Dynamic Memory Allocation</h2><p>Declared in <code>&lt;stlib.h></code>.
+</p><dl><dt> <code>void *malloc(size_t n)</code> </dt><dd><p>    Return pointer to <code>n</code> bytes of freshly allocated memory.  The
+    contents of the memory is not initialized.  Returns <code>NULL</code> on
+    failure.
+</p></dd><dt> <code>void *realloc(void *p, size_t n)</code> </dt><dd><p>    Resize previously allocated block of memory pointed to by <code>p</code> to
+    <code>n</code> bytes and return a pointer to the resized block.  The contents of 
+    the old block is copied bitwise to the new block.
+    Returns <code>NULL</code> on failure.
+</p></dd><dt> <code>void *calloc(size_t nElements, size_t size)</code> </dt><dd><p>    Allocate contiguous memory for nElements having size <code>size</code> and
+    return a pointer to the freshly allocated memory.  The contents of
+    the returned block is set to <code>0</code>.  Returns <code>NULL</code> on failure.
+</p></dd><dt> <code>void free(void *p)</code> </dt><dd><p>    Free previously allocated block of memory pointed to by <code>p</code>.
+</p></dd></dl></section><section data-level="h2"><h2>Memory Allocation Problems</h2><p>Incorrect use of memory allocation routines can result in obscure
+bugs and security problems.
+</p><dl><dt> <strong>Not calling free()</strong> </dt><dd><p>    Results in memory leaks.  Can be a major issue with long running
+    programs like servers.
+</p></dd><dt> <strong>Double-free</strong> </dt><dd><p>    Calling <code>free()</code> multiple times for the same allocation.  Can
+    result in obscure bugs and corrupting the allocator.
+</p></dd><dt> <strong>Invalid Pointer Passed to free() or realloc()</strong> </dt><dd><p>    Passing a pointer not obtained from the allocation routines to
+    <code>free()</code> or <code>realloc()</code> can result in obscure bugs and corrupting
+    the allocator.
+</p></dd></dl></section><section data-level="h2"><h2>Pointers and Arrays</h2><ul><li><p>Only operations for an array are getting its size or obtaining a pointer
+    to element 0 of the array.  All other array ops are really pointer ops.
+</p></li><li><p>The use of an array name in an <strong>expression</strong> (not declaration) is treated
+    by the compiler as a pointer to the first element of the array.
+</p></li><li><p>A subscript is always equivalent to an offset from a pointer.
+</p></li><li><p><code>a[i]</code> is equivalent to <code>*(a + i)</code> which is equivalent to <code>*(i +
+    a)</code> which is equivalent to <code>i[a]</code>.
+</p><pre class="hljs language-c">    int a[10];
+    int *p = a;     //point to a[0]
+    a[2] = 42;      //assign third element
+    *(p + 2) = 42;  //same as previous statement
+    p++;            //p == &amp;a[1]
+    *p = 22;	    //a[1] = 22
+    p += 4;         //p = &amp;a[5]
+    *(p + 1) = 99;  //a[6] = 99
+</pre></li></ul></section><section data-level="h2"><h2>Pointers and Arrays Continued</h2><ul><li><p>An array name in the declaration of a function parameter is treated
+    by the compiler as a pointer to the first element of the array.
+    This is because arrays are passed by reference for efficiency reasons 
+    (all non-array data are passed by value).
+</p></li><li><p>Since arrays are passed as pointers to functions, the function
+    does not know how many elements there are in the array.  
+    Alternatives:
+</p><ol><li><p>Pass number of elements explicitly.
+</p><pre class="hljs language-c">	int main(int argc, const char *argv[]);
+</pre></li><li><p>Use a special sentinel value to indicate end of array
+</p><pre class="hljs language-c">	//last entry of argv[] contains NULL pointer
+	//as sentinel
+	int execv(const char *pathname, char *argv[]);
+</pre></li><li><p>Use program logic to determine # of array elements.
+</p><pre class="hljs language-c">	//sort elements of array between begin
+	//(inclusive) and end (exclusive).
+	//# of elements is end - begin.
+	//(this idiom is heavily used in C++'s
+	//Standard Template Library STL).
+	void sort(int *begin, int *end)
+</pre></li></ol></li></ul></section><section data-level="h2"><h2>Buffer Overflows</h2><ul><li><p>Since arrays do not know their size, it is possible to index
+    beyond the bounds of the array:
+</p><pre class="hljs language-c">    enum { N = ... }
+    int a[N];
+    ...
+    for (int i = 0; i &lt;= N; i++) {
+      //writes beyond end of array in last iteration
+      a[i] = 0;
+    }
+</pre></li><li><p>Errors like the above can be prevented by consistently using
+    inclusive lower bounds and exclusive upper bounds:
+</p><pre class="hljs language-c">    for (int i = 0; i &lt; N; i++) { ... }
+</pre></li><li><p>In general, using pointer arithmetic can result in these kind
+    of <strong>buffer overflows</strong> or <strong>buffer underflows</strong>.
+</p></li></ul></section><section data-level="h2"><h2>Different Styles of Coding a Linear Search</h2><p>Assume we are looking for <code>key</code> in <code>int a[n]</code>.  Alternate ways of coding loop:
+</p><pre class="hljs language-c">for (int i = 0; i &lt; n; i++) {
+  if (a[i] == key) return i;
+}
+
+for (int i = 0; i &lt; n; i++) {
+  if *(a + i) == key) return i;
+}
+
+int *begin = a;
+int *end = &amp;a[n]; //one beyond end, legal in C
+for (int *p = begin; p &lt; end; p++) {
+  if (*p == key) return p - begin;
+}
+</pre></section><section data-level="h2"><h2>Distinguishing Pointer Kinds</h2><p>Pointers are used for two purposes:
+</p><ol><li><p>To point to a memory area containing a single entity.
+    Performing arithmetic on such a pointer does not make sense:
+</p><pre class="hljs language-c">	int i = 22;
+	int *iP = &amp;i;
+	iP++;  //??
+</pre></li><li><p>To point to a memory area containing multiple entities.
+    Performing arithmetic on such pointers does make sense:
+</p><pre class="hljs language-c">	int a[] = {1, 2, 3};
+	int *p = &amp;a;
+	p++;  //makes sense, points to p[1]
+</pre></li></ol></section><section data-level="h2"><h2>Decumenting Pointer Kinds</h2><p>Even though <code>void f(int *p)</code> and <code>void f(int p[])</code> are equivalent,
+have convention of using the former when <code>p</code> is a pointer to a single
+entity and the latter when <code>p</code> is a pointer to multiple entities.
+</p><pre class="hljs language-c">    void single(int *p) {
+      p[1] = 42;  //should raise a red flag for a reader
+                  //who understands the convention
+    }
+
+
+    void multi(int p[]) {
+      p[1] = 42;  //probably okay
+    }
+</pre><p>This is not a standard convention and some regard a <code>T p[]</code> parameter
+declaration as bad style.
+</p></section><section data-level="h2"><h2>Strings, Pointers and Arrays</h2><ul><li><p>A string literal always represents a array of <code>char</code> terminated
+    with a <code>\0</code>.
+</p></li><li><p><code>char msg[] = &quot;hello;&quot;</code> refers to array as <code>msg</code>:
+</p><pre>     msg: [ 'h', 'e', 'l', 'l, 'o', '\0' ]
+</pre><p>     <code>sizeof(msg) == 6</code>.
+</p></li><li><p><code>char *msg = &quot;hello&quot;;</code> sets pointer to point to first
+    character of <strong>anonymous</strong> literal array:
+</p><pre>    msg --> [ 'h', 'e', 'l', 'l, 'o', '\0' ]
+</pre><p>    <code>sizeof(msg)</code> will be size of a pointer (4 on 32-bit machines,
+    8 on 64-bit machines).
+</p></li><li><p>It is wrong to have one file define <code>char msg[] = &quot;hello&quot;;</code> and another
+    file declare <code>extern char *msg;</code> as the compiler will generate different
+    access code.
+</p></li></ul></section><section data-level="h2"><h2>Function Types</h2><p>If <em>T</em>, <em>T1</em>, <em>T2</em>, <code>...</code> <em>Tn</em> are types, then the declaration <em>T</em>
+<code>f(</code><em>T1</em><code>, ... ,</code> <em>Tn</em><code>)</code> declares <code>f</code> to be a function taking arguments
+of types <em>T1</em>, <em>T2</em>, <code>...</code> <em>Tn</em> and returning a value of type <em>T</em>.  
+Note the following:
+</p><ul><li><p>Above types of declarations were not present in K&amp;R C but added
+     in ANSI-C as <em>prototypes</em>.
+</p></li><li><p>When declaring functions, parameters may or may not be named:
+     hence both <code>void f(int i, int j);</code> and <code>void f(int, int);</code>
+     declare <code>f()</code> to be a function taking two <code>int</code> arguments and not
+     returning any value.
+</p></li></ul><ul><li><p>If the argument list is specified as <code>()</code>, then it means taking
+    some unspecified number of arguments of unspecified type.  Example:
+    <code>double f();</code> means <code>f()</code> is a function taking some unspecified 
+    number of arguments of unspecified type returning a <code>double</code>.
+</p></li></ul></section><section data-level="h2"><h2>Function Types Continued</h2><ul><li><p>To indicate that a function takes no arguments use <code>(void)</code>.  
+    So <code>void procedure(void);</code> declares <code>procedure()</code> to be a
+    function which takes no arguments and does not return a result.
+</p></li><li><p>Functions can take a varying number of arguments, indicated using
+    ellipsis; example <code>int printf(const char *fmt, ...);</code>.  Can be
+    defined portably using library <code>stdlib.h</code>.  Usually number of
+    actual arguments specified by explicit arguments or by context.
+</p></li><li><p>Function types are not first-class: they cannot be stored in
+    data-structures, passed as arguments to functions, or returned
+    as function return types.  However, <strong>pointers</strong> to functions
+    can achieve those roles (consequently, it is impossible to
+    define a function at runtime, but possible to pass around
+    pointers to existing functions).
+</p></li></ul></section><section data-level="h2"><h2>Pointers to Functions</h2><p>If <em>T</em>, <em>T1</em>, <em>T2</em>, <code>...</code> <em>Tn</em> are types, then the declaration <em>T</em>
+<code>(*f)(</code><em>T1</em><code>, ... ,</code> <em>Tn</em><code>)</code> declares <code>f</code> to be a function taking arguments
+of types <em>T1</em>, <em>T2</em>, <code>...</code> <em>Tn</em> and returning a value of type <em>T</em>.  
+</p><p>Examples:
+</p><pre class="hljs language-c">int f(void);    //a function returning an int
+
+int *f(void);   //a function returning a pointer to an int
+
+int (*f)(void); //a pointer to a function returning an int
+
+//sort base[n*size] using comparison function compar to
+//compare elements pointed to by p1 and p2: return >0, 0, &lt;0
+//if *p1 is >, ==, &lt; *p2
+void qsort(void base[], size_t n, size_t size,
+           int (*compar)(const void *p1, const void *p2));
+</pre></section><section data-level="h2"><h2>Command-Line Arguments</h2><p>The first programmer visible function run in a C program is <code>main()</code>
+with declaration:
+</p><pre class="hljs language-c">/** return program status: 0 for success, non-zero for error */
+int 
+main(
+  /** # of command line args, including exec path */
+  int argc,
+  /** command-line args array, actually const char **argv */
+  const char *argv[]
+);
+</pre><p>Command-line args for <code>./t hello world</code> where <code>[   ] ---></code> indicates pointer:
+</p><pre>argc: 3
+argv: [   ] ---> [      ] ---> [ '.' '/' 't' '\0' ]
+                 [      ] ---> [ 'h' 'e' 'l' 'l' 'o' '\0' ]
+                 [      ] ---> [ 'w' 'o' 'r' 'l' 'd' '\0' ]
+	         [ NULL ] //usually
+</pre></section><section data-level="h2"><h2>Sorting Command Line Arguments</h2><p>Use qsort() in  <a href="code/argv-sort.c">argv-sort.c</a> to sort command-line
+arguments in non-ascending order:
+</p><pre class="hljs language-c">int compare_geq(const void *p1, const void *p2) {
+  return strcmp(*(const char **)p2, *(const char **)p1);
+  //alternately:
+  //- strcmp(*(const char **)p1, *(const char **)p2);
+}
+
+int
+main(int argc, const char *argv[])
+{
+  const size_t nArgs =
+    argc - 1;          //since argv[0] contains exec path
+
+  //variable-length array (VLA) where # elements
+  //determined at runtime
+  const char *args[nArgs];
+
+  memcpy(args, &amp;argv[1], nArgs*sizeof(char *));
+  qsort(args, nArgs, sizeof(char *), compare_geq);
+  for (int i = 0; i &lt; nArgs; i++) printf(&quot;%s\n&quot;, args[i]);
+}
+</pre><p>Log:
+</p><pre>./argv-sort twas brillig and the slithy toves
+twas
+toves
+the
+slithy
+brillig
+and
+</pre></section><section data-level="h2"><h2>Abstract Data Types in C</h2><p>An ADT hides the implementation of a data type.  The data type is
+available to clients only via certain published operations.  
+</p><ul><li><p>Implemented in C using a <code>*.h</code> header file to make the ADT
+    syntactic specification available to clients.
+</p></li><li><p>The <code>*.h</code> header file can declare the ADT type as an opaque
+    <strong>incomplete</strong> <code>struct</code>.
+</p></li><li><p>The declarations in the header file for ADT operations use only
+    pointers to the ADT type.
+</p></li><li><p>Since the size of a pointer always the same irrespective of the
+    pointed to type, clients can be compiled without needing to know
+    the details of the ADT type.
+</p></li><li><p>Implementation <code>*.c</code> file completes the definition of ADT type and
+    provides definitions for the operations.
+</p></li></ul></section><section data-level="h2"><h2> <span id="linked-list">A</span> Linked List ADT Specification</h2><p>Specification file 
+<a href="code/linked-list/linked-list.h">linked-list.h.</a>  Uses conditional compilation <code>#ifndef</code> idiom to
+prevent header file being included multiple times within a single
+compilation.
+</p><pre class="hljs language-h">#ifndef LINKED_LIST_H_
+#define LINKED_LIST_H_
+
+//incomplete declaration
+typedef struct _LinkedList LinkedList;
+
+//all routines terminate program on error
+
+LinkedList *make_linked_list(void);
+
+void free_linked_list(LinkedList *list);
+
+/** insert lowercase(str) into list, keeping list sorted in
+ *  strictly ascending order (hence str not inserted if
+ *  already present).
+ */
+void insert_linked_list(LinkedList *list, const char *str);
+
+typedef void IterateFn(const char *str, void *ctx);
+
+void iterate_linked_list(const LinkedList *list,
+                         IterateFn *fn, void *ctx);
+
+#endif //#ifndef LINKED_LIST_H_
+</pre></section><section data-level="h2"><h2>A Linked List ADT Implementation</h2><p>Implementation file 
+<a href="code/linked-list/linked-list.c">linked-list.c</a> maintains sorted list without duplicates.  Uses
+ <a href="https://en.wikipedia.org/wiki/Flexible_array_member">flexible
+arrays</a> (must be last field in <code>struct</code>).
+</p><pre class="hljs language-c">//complete _LinkedList incomplete type
+struct _LinkedList {
+  LinkedList *next;
+  char str[];  //flex array for NUL-terminated string chars
+};
+
+LinkedList *
+make_linked_list(void)
+{
+  return callocChk(1, sizeof(LinkedList));
+}
+
+void
+free_linked_list(LinkedList *listHdr)
+{
+  LinkedList *next;
+  for (LinkedList *p = listHdr->next;
+       p != NULL;
+       p = next) {
+    next = p->next; //copy p->next into p1 since
+                  //p will become dangling ptr after free()
+    free(p);
+  }
+  free(listHdr);
+}
+</pre></section><section data-level="h2"><h2>A Linked List ADT Implementation: Continued</h2><pre class="hljs language-c">void
+insert_linked_list(LinkedList *listHdr, const char *str)
+{
+  //allocate storage for flexible array too
+  //in single call to malloc().
+  LinkedList *newNode =
+    mallocChk(sizeof(LinkedList) + strlen(str) + 1);
+
+  //lower-case copy, return '\0' ptr
+  stpcpy_lc(newNode->str, str);
+
+  LinkedList *previous;  //will insert after this
+  LinkedList *current;   //will insert before this
+  for (previous = listHdr, current = listHdr->next;
+       current != NULL &amp;&amp;
+         strcmp(current->str, newNode->str) &lt; 0;
+       previous = current,
+         current = current->next) {
+  }
+  if (current != NULL &amp;&amp; strcmp(current->str, newNode->str) == 0) {
+    //str already in list, do not insert
+    free(newNode);
+  }
+  else {
+    //link in newNode between previous and current
+    previous->next = newNode;
+    newNode->next = current;
+  }
+}
+
+</pre></section><section data-level="h2"><h2>A Linked List ADT Implementation: Continued</h2><pre class="hljs language-c">void
+iterate_linked_list(const LinkedList *list,
+                    IterateFn *fn, void *ctx)
+{
+  for (const LinkedList *p = list->next; p != NULL; p = p->next) {
+    fn(p->str, ctx);
+  }
+}
+</pre></section><section data-level="h2"><h2>Linked List ADT Client</h2><p>Client in 
+<a href="code/linked-list/main.c">main.c</a> uses ADT to sort command-line arguments.
+</p><pre class="hljs language-c">static void
+print(const char *str, void *ctx)
+{
+  fprintf((FILE *)ctx, &quot;%s\n&quot;, str);
+}
+
+int
+main(int argc, const char *argv[])
+{
+  LinkedList *list = make_linked_list();
+  for (int i = 1; i &lt; argc; i++) {
+    insert_linked_list(list, argv[i]);
+  }
+  iterate_linked_list(list, print, stdout);
+  free_linked_list(list);
+}
+</pre></section><section data-level="h2"><h2>Linked List Log</h2><pre class="hljs language-sh"># sorts with duplicate removal
+$ ./linked-list joe ann sue bill ann sue
+ann
+bill
+joe
+sue
+
+# sorts one element
+$ ./linked-list joe joe joe
+joe
+
+# sorts no elements
+$ ./linked-list
+$
+</pre></section><section data-level="h2"><h2>Checking for Memory Errors using <code>valgrind</code></h2><pre class="hljs language-sh">$ valgrind ./linked-list joe ann sue bill ann sue
+==916622== Memcheck, a memory error detector
+...
+ann
+bill
+joe
+sue
+==916622== 
+==916622== HEAP SUMMARY:
+==916622==     in use at exit: 0 bytes in 0 blocks
+==916622==   total heap usage: 8 allocs, 8 frees,
+                4,177 bytes allocated
+==916622== 
+==916622== All heap blocks were freed -- no leaks are possible
+==916622== 
+==916622== For lists of detected and suppressed errors,
+                rerun with: -s
+==916622== ERROR SUMMARY: 0 errors from 0 contexts
+                (suppressed: 0 from 0)
+</pre></section><section data-level="h2"><h2>ADT Compromises</h2><ul><li><p>When designing a library, the library author cannot predict the lifetime
+    required by library clients for entities constructed by the library.
+</p></li><li><p>It is most efficient to allow the library clients to allocate the
+    entity.  A client could choose either static allocation, stack
+    allocation or dynamic allocation (in the latter case, the client
+    would be responsible for calling <code>free()</code>).
+</p></li><li><p>Since allocation by the client requires that the client know the
+    size of the entity, the ADT must export the implementation of the
+    type in a header file.  It requires discipline for clients of
+    the header to not use the implementation type for other than
+    the intended purpose (same issue occurs with headers containing
+    <code>private</code> members in C++).
+</p></li></ul></section><section data-level="h2"><h2>Using <code>typedef</code>'s</h2><p>A <code>typedef</code> merely defines an alias for a type.  It may not always
+work as intended:
+</p><ul><li><p>Early Unix versions used <code>int</code>'s for process ID and user ID's, but
+    current Unix versions typically use <em>arithmetic types</em> <code>pid_t</code> and
+    <code>uid_t</code> specified as <code>typedef</code>s.  Typically, this will not catch
+    errors like the following:
+</p><pre class="hljs language-c">	void f(pid_t, uid_t);
+	...
+        uid_t uid;
+        pid_t pid;
+        ...
+        f(uid, pid); //incorrect arg order in call
+</pre></li><li><p>Usually not a good idea to bury pointers within a <code>typedef</code>.
+</p><pre class="hljs language-javascript">      typedef struct Person *PersonP;
+
+      //const pointer to struct Person;
+      //not pointer to const struct Person.
+      const PersonP personP;  
+</pre></li></ul></section><section data-level="h2"><h2>Complex Declarations</h2><ul><li><p>C declarations are hard to read as language designers tried to
+    make the <em>declaration</em> of a variable looks just like the <em>use</em> of
+    that variable.  
+</p></li><li><p>A simple declaration looks like a <strong>basic type</strong> followed by a variable;
+    e.g.  <code>int i;</code>, <code>double d;</code>.
+</p></li><li><p>A complex declaration surrounds the variable with constructors for
+    derived types or grouping parentheses (just as that variable would
+    be used to result in the <em>basic type</em>).
+</p></li></ul></section><section data-level="h2"><h2>Complex Declarations Continued</h2><ul><li><p>Derived types are of 3 types:
+</p><p>     <strong>Pointer to</strong>::
+       Denoted using a prefix <code>*</code>.
+</p><p>     <strong>Array of</strong>::
+       Denoted using a postfix <code>[]</code>.
+</p><p>     <strong>Function returning</strong>::
+       Denoted using a postfix <code>()</code>.
+</p></li><li><p>Understanding declarations is also complicated by the fact that
+    parentheses are used for two distinct purposes:
+</p><ol><li><p>The traditional use of grouping to override the default
+        precedence of the operators.  
+</p></li><li><p>To indicate function arguments.
+</p></li></ol></li></ul></section><section data-level="h2"><h2>Decoding Complex Declarations</h2><p>Following rules result from the fact that postfix type constructors <code>[]</code> and
+<code>()</code> have higher precedence than prefix <code>*</code>:
+</p><ol><li><p>Start with variable.
+</p></li><li><p>Traverse postfix type constructors to the right as far as possible,
+    appending the constructors to the type of the variable.
+</p></li><li><p>Traverse prefix type constructors to the left as far as possible.
+</p></li><li><p>Repeat steps 2 and 3 as indicated by grouping parentheses.
+</p></li><li><p>Finally add basic type.
+</p></li></ol></section><section data-level="h2"><h2>Example of Decoding a Complex Declaration</h2><pre class="hljs language-c">int (*fs[])()
+</pre><ol><li><p><code>fs</code> is ...
+</p></li><li><p><code>fs</code> is array of ... (stop because of unbalanced right paren).
+</p></li><li><p><code>fs</code> is array of pointer to ... (stop when encountering balancing left
+    paren).
+</p></li><li><p><code>fs</code> is array of pointer to function returning ... (because of <code>()</code> 
+     indicating function arguments).
+</p></li><li><p><code>fs</code> is array of pointer to function returning <code>int</code>.
+</p></li></ol></section><section data-level="h2"><h2>A Practical Example of a Complex Declaration</h2><pre class="hljs language-c">void ( *signal(int sig, void (*handler)(int sig)) )(int sig);
+</pre><p><code>signal</code> is a function taking 2 arguments <code>sig</code> and <code>handler</code> returning a
+pointer to a function taking an <code>int</code> and returning <code>void</code>. The argument
+<code>sig</code> is an <code>int</code>, while <code>handler</code> is a pointer to a function taking an
+<code>int</code> and returning <code>void</code>.
+</p><p>Can be simplified using a <code>typedef</code>:
+</p><pre class="hljs language-javascript">  typedef void (*sighandler_t)(int);
+
+  sighandler_t signal(int sig, sighandler_t handler);
+</pre></section><section data-level="h2"><h2>Abstract Declarators</h2><p>When writing decaration of function arguments, a cast expression or
+the operand for <code>sizeof()</code>, we need to write a type expression without
+declaring an object of that type.  Simply omit the object name.
+Examples:
+</p><dl><dt> <code>void f(int* (*)());</code></dt><dd><p>    <code>f()</code> is a function with no return value.  It takes a single argument 
+    which is a pointer to a function taking unspecified arguments and 
+    returning a pointer to an <code>int</code>.
+</p></dd><dt> <code>sizeof(int *[3])</code></dt><dd><p>    The size of an array of 3 pointers to <code>int</code>.
+</p></dd><dt><code>(int (*)[3])p</code></dt><dd><p>    Cast <code>p</code> to pointer to array of 3 <code>int</code>.
+</p></dd><dt> <code>double (*const [10])(unsigned long)</code></dt><dd><p>    An abstract declarator for an array of 10 <code>const</code> pointers to
+    functions taking a single <code>unsigned long</code> argument and
+    returning a <code>double</code>.
+</p></dd></dl></section><section data-level="h2"><h2>Type Declarations Semantic Restrictions</h2><p>Even though a declaration may by syntactically legal, it may not
+be semantically legal:
+</p><ul><li><p>Cannot have arrays of functions.  <code>int a[]()</code> semantically illegal
+    (syntactically, <code>a</code> is array of functions returning <code>int</code>).  OTOH,
+    <code>int (*a[])()</code> is legal (<code>a</code> is an array of pointers to function
+    returning <code>int</code>).
+</p></li><li><p>Functions cannot return functions.  <code>int (f())()</code> semantically
+    illegal (syntactically, <code>f</code> is a function returning function
+    returning <code>int</code>).  OTOH, <code>int (*f())()</code> is legal (<code>f</code> is a
+    function returning a pointer to a function returning <code>int</code>).
+</p></li><li><p>Functions cannot return arrays.  <code>int f()[]</code> sematically illegal
+    (syntactically, <code>f</code> is a function returning array of <code>int</code>).
+    OTOH, <code>int (*f())[]</code> is legal (<code>f</code> is a function returning pointer to
+    array of <code>int</code>).
+</p></li></ul></section><section data-level="h2"><h2>Type Declarations Semantic Restrictions Continued</h2><ul><li><p>For array declarations only the leftmost [] can be undimensioned.
+    <code>int a[][10]</code> legal but <code>int a[][]</code> not legal.
+</p></li><li><p><code>void</code> can only be used as a pointer base type (generic pointer),
+    function return type or in function prototype to indicate that a
+    function takes no arguments.
+</p></li></ul></section><section data-level="h2"><h2> <span id="coll-interfaces">Interfaces</span> in C</h2><ul><li><p>An <strong>interface</strong> for a data type is a collection of functions
+    which operate on that data type.
+</p></li><li><p>Interfaces are useful when multiple data types implement the same
+    interface.  For example, both linked-lists and vectors could
+    implement a <strong>collection</strong> interface containing functions like
+    <code>add()</code>, <code>rm_at_index()</code> and <code>free()</code>.
+</p></li><li><p>Represent an interface using a <code>struct</code> of pointers to
+    functions implementing the interface.
+</p></li><li><p>Represent data type using a <code>struct</code> with first field
+    pointing to interface <code>struct</code> and remaining fields
+    representing data for data type.
+</p></li><li><p>All interface functions take a pointer to data type <code>struct</code>.
+</p></li></ul></section><section data-level="h2"><h2>Multiple Implementations of a Sorted <code>int</code> Collection Interface</h2><p>In  <a href="code/coll-perf/">coll-perf:</a>
+</p><dl><dt>  <a href="code/coll-perf/int-coll.h">int-coll.h</a> </dt><dd><p>    Specification of collection interface.
+</p></dd><dt> Sorted <code>int</code> List Implementation </dt><dd><p>     <a href="code/coll-perf/sorted-int-list.h">sorted-int-list.h</a>
+    specification file and 
+    <a href="code/coll-perf/sorted-int-list.c">sorted-int-list.c</a> implementation file.
+</p></dd><dt> Sorted <code>int</code> Dynamic Vector Implementation </dt><dd><p>     <a href="code/coll-perf/sorted-int-vec.h">sorted-int-vec.h</a>
+    specification file and 
+    <a href="code/coll-perf/sorted-int-vec.c">sorted-int-vec.c</a> implementation file.
+</p></dd><dt> Driver Program  <a href="code/coll-perf/coll-test.c">coll-test.c</a> </dt><dd><p>    Tests both kinds of collections.
+</p></dd></dl></section><section data-level="h2"><h2>Log of Sorting Using Multiple Collection Implementations</h2><pre class="hljs language-sh">$ ./sort-ints 22 7 3 44 5
+*** Sorted List
+3 5 7 22 44 
+3 5 7 22 
+3 5 7 
+3 5 
+3 
+
+*** Sorted Vec
+3 5 7 22 44 
+3 5 7 22 
+3 5 7 
+3 5 
+3 
+</pre></section><section data-level="h2"><h2>Memory Layout Example</h2><pre class="hljs language-javascript">//inside a function: hence all vars are auto-allocated on stack
+typedef struct { short x, y; } Point;
+typedef struct {
+  const char *desc;
+  const char[4] label;
+  Point points[2];
+} Line;
+Line lines[] = {
+  { &quot;first&quot;, &quot;L1&quot;,
+    { { .x = 512, .y = 16 }, { 128, 10 } } },
+  { &quot;second&quot;, &quot;L2&quot;,
+    { { .x = 12, .y = 160 }, { 18, 100 } } },
+};
+</pre></section><section data-level="h2"><h2>Memory Layout Example Continued</h2><pre class="hljs language-javascript">Line *lP = &amp;lines[0];
+const short *vP = &amp;lines[1].points[1].y;
+const char *cP1 = &amp;lines[0].desc[3];
+Point *pointP = malloc(sizeof(Point));
+char *cP2 = ((char *)&amp;pointP->y) + 1;
+</pre></section><section data-level="h2"><h2>Memory Layout Example Continued</h2><p>On next slide:
+</p><ul><li><p>Assume 32-bit little-endian machine with 2-byte <code>short</code>'s.  Stack
+    area for above starts at <code>0x8000</code>, string constants at <code>0x1000</code>
+    and heap at <code>0x4000</code>.
+</p></li><li><p>All numbers in hex (<code>xx</code> means undefined); some pointers shown with
+    both lines and values; others shown only with values.
+</p></li><li><p>Storage for <code>&quot;second&quot;</code> could start immediately after storage for
+    <code>&quot;first&quot;</code>.
+</p></li></ul></section><section data-level="h2"><h2>Memory Layout Example Continued</h2><pre>                Stack Area                    String Constants
+lines: 0x8000 | 00  10  00  00  | ---> 0x1000|'f' 'i' 'r' 's' |
+...... 0x8004 | 'L' '1' 00  xx  |      0x1004|'t'  0  xx  xx  |
+...... 0x8008 | 00  02  10  00  |  +-> 0x1008|'s' 'e' 'c' 'o' |
+...... 0x800C | 80  00  0A  00  |  |   0x100C|'n' 'd'  0  xx  | 
+       0x8010 | 08  10  00  00  | -+
+       0x8014 | 'L' '2' 00  xx  |
+       0x8018 | 0C  00  A0  00  |
+       0x8024 | 12  00  64  00  |
+lP:    0x8030 | 00  80  00  00  |       
+vP:    0x8034 | 26  80  00  00  |
+cP1:   0x8038 | 03  10  00  00  |                 Heap
+pointP:0x803C | 00  40  00  00  | ---->0x4000| xx  xx  xx  xx |
+cP2:   0x8040 | 03  40  00  00  |
+</pre></section><section data-level="h2"><h2>Static</h2><p>Distinguish between the general word <em>static</em> and the keyword
+<code>static</code>.  In general, the word <em>static</em> means <em>before runtime</em>.
+</p><p>In C, <em>static</em> data or code is data which has lifetime equal to
+the lifetime of the program.  The keyword <code>static</code> implies the
+<em>static</em> property, but the <em>static</em> property can also be implied using
+an implicit or explicit <code>extern</code>.
+</p><ul><li><p>Static data/code can be declared using the storage specifier <code>extern</code>
+    or <code>static</code>.
+</p></li><li><p>If <code>static</code> or <code>extern</code> declaration is within a function, then
+    normal scope rules apply and the declaration is restricted to
+    the scope in which it is declared.
+</p></li><li><p>The scope of a top-level <code>extern</code> declaration/definition is the
+    entire program.  If a top-level declaration/definition does not
+    have a storage-class specifier then it defaults to <code>extern</code>.
+</p></li></ul></section><section data-level="h2"><h2>Static Continued</h2><ul><li><p>The scope of a top-level <code>static</code> declaration/definition is only
+    the current <em>compilation unit</em> (file).  Hence two top-level
+    <code>static</code> definitions of the same identifier in different files
+    are totally independent of each other.
+</p></li><li><p>It is normally good practice to declare top-level functions or data
+    which are only used within a single file <code>static</code>.
+</p></li></ul></section><section data-level="h2"><h2>External Variable Declarations</h2><p>Recommended practice:
+</p><ol><li><p>For each external variable have a single definition in only 1
+    source file.  Omit the <code>extern</code> qualifier and include an explicit
+    initializer.
+</p><pre class="hljs language-javascript">      int flags = 0x0;
+      char *msg1 = &quot;hello&quot;;
+      char msg2[] = &quot;world&quot;;
+</pre></li><li><p>In each source or header file referencing a variable, use the
+    <code>extern</code> storage class and do not include a initializer:
+</p><pre class="hljs language-javascript">      extern int flags;
+      extern char *msg1;
+      extern char msg2[];
+</pre></li><li><p>To avoid inconsistencies between a definition and declaration,
+    include declaration in a header file which is <code>#include</code>'d in the
+    <code>.c</code> file containing the definition.
+</p></li></ol></section><section data-level="h2"><h2>Multi-Dimensional Arrays</h2><ul><li><p>C has only 1-dimensional arrays.  Elements of arrays can be arrays,
+    which permits array notation for multiple dimensions for <code>static</code>
+    and <code>auto</code> (but not dynamic) arrays.
+</p></li><li><p>When declaring a multi-dimensional array, first (leftmost) dimension
+    can be unspecified as in <code>a[][10][3]</code>.
+</p></li><li><p>Impossible to have multi-dimensional array as function parameters
+    without all but the leftmost dimension specified.  So <code>int a[][]</code>
+    is not allowed as a function parameter.
+</p></li></ul></section><section data-level="h2"><h2>Ragged Arrays</h2><p> As an alternative to multi-dimensional array of arrays, implement a
+ <em>n</em>-dimensional array as a vector of pointers to <em>(n-1)</em>-dimensional
+ arrays.  Known as <strong>ragged arrays</strong> or <strong>iliffe vectors</strong>.  In the
+ 2-dimensional case, this means that each row can have a different number
+ of elements.  Saves memory due to ragged rows but uses extra memory for
+ pointer storage.  Higher time cost due to extra indirections involved in
+ access.
+</p><p>For example, a 5 x 6 <code>char</code> array <code>a</code> can be implemented as follows:
+</p><pre>char **a;---->|    |----->[_, _, _, _, _, _ ]
+              |    |----->[_, _, _, _, _, _ ]
+              |    |----->[_, _, _, _, _, _ ]
+              |    |----->[_, _, _, _, _, _ ]
+              |    |----->[_, _, _, _, _, _ ]
+</pre><p>Allows array notation: <code>a[i]</code> refers to <code>i</code>'th pointer.  Hence
+<code>a[i][j]</code> refers to <code>j</code>'th char in vector pointed to <code>i</code>'th pointer.
+</p></section><section data-level="h2"><h2>Matrix Multiplication: Before C99</h2><p>Consider declararing a function for matrix multiplication.  Aassuming
+that <code>c[n1][n3]</code> is result of multiplying matrix <code>a[n1][n2]</code> by
+<code>b[n2][n3]</code>, before C99, the only possibilities were:
+</p><pre class="hljs language-javascript">//Use ragged arrays
+void matrix_multiply(double **a, double **b, double **c, 
+                     int n1, int n2, int n3) 
+{
+  for (int i = 0; i &lt; n1; i++) {
+    for (int j = 0; j &lt; n3; j++) {
+      c[i][j] = 0;
+      for (int k = 0; k &lt; n2; k++) {
+        c[i][j] += a[i][k]*b[k][j];
+      }
+    }
+  }
+}
+</pre></section><section data-level="h2"><h2>Matrix Multiplication: Before C99 Continued</h2><pre class="hljs language-javascript">//however, something like this is illegal:
+void matrix_multiply(double a[][], double b[][],
+                     double c[][], 
+                     int n1, int n2, int n3);
+
+//Could use specific sizes, but then can only
+//multiply matrices of specified sizes.
+void matrix_multiply(double a[][10], double b[10][5],
+                     double c[][5]);
+</pre><p>Similar problems with dynamically-allocated multi-dimensional arrays.
+</p></section><section data-level="h2"><h2>C99 Matrix Multiplication</h2><p>C99 allows array dimensions to be specified at run-time.  Hence following
+would work:
+</p><pre class="hljs language-javascript">void matrix_multiply(int n1, int n2, int n3,
+                     double a[n1][n2],
+                     double b[n2][n3], double c[n1][n3]);
+</pre><p>but usually:
+</p><pre class="hljs language-javascript">void matrix_multiply(double a[n1][n2], double b[n2][n3],
+                     double c[n1][n3],
+                     int n1, int n2, int n3);                     
+</pre><p>would cause a compilation error or not work as intended.
+</p></section><section data-level="h2"><h2>Function Parameters and Return Values</h2><ul><li><p>C uses <em>call-by-value</em>, for all types except arrays; hence callee
+    cannot change actual argument in caller.
+</p><pre class="hljs language-javascript">    static void f(int a) { a = 27; }
+    ...
+    int n = 2;
+    f(n);
+    printf(&quot;%d\n&quot;, n); //still 2
+</pre></li><li><p>It follows that the only way a function can return a value to its
+    caller is:
+</p><p>     - Using the function return value.
+</p><p>     - Using global variables (strongly discouraged).
+</p><p>     - Using a pointer parameter to change what the pointer points
+       to in the caller (used by <code>scanf()</code> and friends).
+</p></li></ul></section><section data-level="h2"><h2>Returning Values via Pointer Parameters</h2><ul><li><p>If function <code>f()</code> wants to return an <code>int</code> value using a pointer
+    parameter:
+</p><pre class="hljs language-javascript">      void f(int *iP) { ...; *iP = fValue; }
+
+      ...
+      int x = someInitValue;
+      f(&amp;x); //x is now fValue.
+</pre></li></ul></section><section data-level="h2"><h2>Returning Values via Pointer Parameters Continued</h2><ul><li><p>If a function needs to return a pointer value via a function parameter
+    then the caller must pass in the address of a pointer variable.
+    For example, if <code>f()</code> wants to return a pointer to some type <code>T</code> via
+    a function argument:
+</p><pre class="hljs language-javascript">    void f(T **t) {
+      T *tP = malloc(sizeof(T);
+      *t = tP;
+      ...
+    }
+
+    ...
+    T *t;
+    f(&amp;t);  //t is value set by f().
+</pre></li></ul></section><section data-level="h2"><h2>Returning Values via Pointer Parameters Continued</h2><ul><li><p>If a function wants to allocate and return a string via a
+    function parameter, then the parameter must have type <code class="hljs language-javascript">char **</code>
+</p><pre class="hljs language-javascript">    #define GREET &quot;hello&quot;
+    int greetMessage(const char *name,
+                     char **greet) {
+      char *msg =
+        malloc(strlen(GREET) + 1 + strlen(name) + 1);
+      strcpy(msg, GREET);
+      strcat(msg, &quot; &quot;);
+      strcat(msg, name);
+      *greet = msg;
+      return 0;              
+    }
+</pre></li></ul></section><section data-level="h2"><h2>Returning Values via Pointer Parameters Continued</h2><pre class="hljs language-javascript">    char *greet;
+    if (greetMessage(&quot;John&quot;, &amp;greet) == 0) {
+       printf(&quot;%s\n&quot;, greet); //hello John
+    }
+</pre></section><section data-level="h2"><h2>Asymmetric Bounds</h2><p>Koenig: Express a range by the first element of the range and the first
+element beyond it: i.e., inclusive lower bounds and exclusive upper bounds.
+Example: <code>10 &lt;= i &amp;&amp; i &lt; 20</code>.  Advantages:
+</p><ul><li><p>The number of elements is the difference between the bounds. 20 - 10 
+    is 10 elements.
+</p></li><li><p>The bounds are equal when the range is empty.
+</p></li><li><p>The upper bound is never less than the lower bound, even when the
+    range is empty.
+</p></li></ul><p>The inclusive lower bound gives the first <em>occupied</em> element of some
+sequence and the exclusive upper bound gives the first <em>free</em> element of
+some sequence.
+</p></section><section data-level="h2"><h2>Asymmetric Bounds Continued</h2><p>Hence use:
+</p><pre class="hljs language-javascript">  enum { N = 10 };
+  int a[N];
+  int i;
+  for (i = 0; i &lt; N; i++) { a[i] = 0; }
+</pre><p>instead of:
+</p><pre class="hljs language-javascript">  enum { N = 10 };
+  int a[N];
+  int i;
+  for (i = 0; i &lt;= N - 1; i++) { a[i] = 0; }
+</pre></section><section data-level="h2"><h2>Asymmetric Bounds Continued</h2><p>For looping backwards thru an array:
+</p><pre class="hljs language-javascript">  enum { N = 10 };
+  int a[N];
+  int i;
+  for (i = N - 1; i > -1; i--) { ... }
+</pre><p>But since an array index can be <code>unsigned</code>, if we declare <code>i</code> <code>unsigned</code>, we
+can get into trouble:
+</p><pre class="hljs language-javascript">  enum { N = 10 };
+  int a[N];
+  unsigned i;
+  for (i = N - 1; i > -1; i--) { ... }
+</pre><p>The termination test does not make sense for <code>unsigned i</code>.
+</p><p>Can fix, but avoid using <code>unsigned</code> except for low-level stuff like
+bit-fields.
+</p></section><section data-level="h2"><h2>Using Data Instead of Code</h2><p>Given complex code, extract complexity into regular data and write simple
+code which is acts as an interpreter for the data.  
+</p><p>Typical example is a <em>finite-state machine</em>.  Can be implemented in
+complex code where state corresponds to position in the code and 
+transitions encoded using tests and <code>goto</code>'s.  Alternately, represented
+using a state transition table with a simple interpreter.
+</p></section><section data-level="h2"><h2>Using Data Instead of Code Continued</h2><p>Another example: consider a sequence of tests:
+</p><pre class="hljs language-javascript">  if (complex_cond1) {
+    action1;
+  }
+  else if (complex_cond2) {
+    action2;
+  }
+  ...
+  else if (complex_condn) {
+    actionN;
+  }
+</pre></section><section data-level="h2"><h2>Using Data Instead of Code Continued</h2><p>Replace with functions <code>complex_cond1()</code>, <code>action1</code>, ..., <code>complexCondN()</code>,
+<code>actionN</code> with a table (<code>Cond</code> and <code>Action</code> are assumed to be <code>typedef</code>'d to
+suitable function pointers):
+</p><pre class="hljs language-javascript">  struct { Cond cond; Action action } condActions[] = {
+    { complexCond1, action1 },
+      ...
+    { condN, actionN }
+  };
+
+  for (int i = 0; 
+       i &lt; sizeof(condActions)/sizeof(condActions[0]);
+       i++) {
+    if (condActions[i].cond()) {
+      condActions[i].action();
+      break;
+    }
+  }
+</pre><p>Dynamic dispatch in OOP is when basically the conditions are type tests.    
+</p></section><section data-level="h2"><h2>Name Spaces</h2><p>The same identifier can be used for different purposes, even in the same
+scope, if the uses are in different name spaces.  C's different name spaces
+are: 
+</p><ul><li><p>Objects (variables), functions, typedef and <code>enum</code>-constants.
+</p></li><li><p>Labels.
+</p></li><li><p><code>struct</code>, <code>union</code> and <code>enum</code> tags.
+</p></li><li><p>A separate name space for the fields of each <code>struct</code> or <code>union</code>.
+</p></li></ul></section><section data-level="h2"><h2>Name Spaces Example</h2><pre class="hljs language-javascript">  int f(int a) {
+    typedef struct f {
+      int f;
+      struct f *a;
+    } F;
+    F s;
+    f: /* label */
+    ...
+  }
+</pre></section><section data-level="h2"><h2>Dynamic Memory Allocation</h2><p>Minimally, return values from <code>malloc()</code> and friends must be checked.  Can
+be implemented by using simple wrapper functions:
+</p><pre class="hljs language-javascript">  #include &lt;stdio.h>
+  #include &lt;stdlib.h>
+
+  void *mallocChk(size_t s) {
+    void *p = malloc(s);
+    if (!p) {
+      perror(&quot;memory allocation error&quot;);
+      exit(1);
+    }
+    return p;
+  }
+</pre></section><section data-level="h2"><h2>Dynamic Memory Allocation Continued</h2><p>Raise abstraction-level for memory allocation by using sub-allocators:
+</p><dl><dt> <strong>Chunk Allocation</strong></dt><dd><p>     Allocate type <code>T</code> in chunks of <code>N</code> elements at a time; Link all free
+     <code>T</code> elements into a free-list and manage free-list with
+     allocation/deallocation requests for individual elements.  If the
+     free-list exhausted at an allocation request, allocate a new chunk.
+</p></dd><dt> <strong>Vector Allocation</strong></dt><dd><p>     Implement dynamically resizable vectors which grow as needed.  Can
+     be done using <code>realloc()</code> or ragged array of arrays.
+</p></dd></dl></section><section data-level="h2"><h2>Dynamic Memory Allocation Continued</h2><dl><dt> <strong>Pool Allocation</strong></dt><dd><p>     Use the fact that data structures are often allocated and freed
+     together.  Hence write a suballocator which controls a pool of memory;
+     the suballocator merely allocates memory without any deallocation.
+     When the data structures in the pool are no longer needed, the entire
+     pool is destroyed and returned to the malloc() allocator.
+</p><p>     Generalized to resource pools in Apache's httpd server.
+</p></dd><dt> <strong>Garbage Collection</strong></dt><dd><p>     It is possible to use garbage collection in C/C++ programs using
+     <em>conservative garbage collection</em> techniques.
+</p></dd></dl></section><section data-level="h2"><h2>C Preprocessor Overview</h2><p>Conceptually occurs before compilation proper (with <code>gcc</code> can run
+only preprocessor using the <code>-E</code> option).
+</p><ul><li><p>Purely textual processing.
+</p></li><li><p>File inclusion using <code>#include</code>.
+</p></li><li><p>Conditional compilation (using <code>#if</code>, <code>#ifdef</code>).
+</p></li><li><p>Concatenation of adjacent string literals: <code>&quot;hello &quot; &quot;world&quot;</code> 
+    becomes <code>&quot;hello world&quot;</code>.
+</p></li><li><p>Very weak macro processings (textual substitution, no iteration or
+    recursion).
+</p></li><li><p>Modern practice discourages complex macros (except for constants).
+    Use <code>inline</code> function instead.
+</p></li><li><p>Sequel discusses cpp fine-points.
+</p></li></ul></section><section data-level="h2"><h2>Header File Inclusion Idiom</h2><p>To prevent a header file <code>hdr.h</code> from being included multiple times because
+of nested includes, the idiom of enclosing the contents of the header file
+in a preprocessor conditional is often used:
+</p><pre class="hljs language-javascript">  #ifndef _HDR_H
+  #define _HDR_H
+
+  /* Contents of header file */
+
+  #endif /* ifndef _HDR_H */
+</pre><p>Historically (Rob Pike) objected to this idiom, since it can lead to
+the header file being read multiple times during a single compilation.
+However, compilers like <code>gcc</code> recognize this idiom and avoid reading
+the file multiple times.  Encouraged for modern code.
+</p></section><section data-level="h2"><h2>Expression Macros</h2><p>Macros are not functions:
+</p><p>Consider 
+</p><pre class="hljs language-javascript">  #define min(a, b)  (a &lt; b) ? a : b
+</pre><p>But
+</p><pre>     min(a, b) + 1
+  == (a &lt; b) ? a : b + 1
+  == (a &lt; b) ? a : (b + 1)  //+ binds tighter than ?:
+</pre><p>and
+</p><pre>     min(x&amp;y, z)
+  == (x&amp;y &lt; z) ? x&amp;y : z
+  == (x &amp; (y &lt; z)) ? (x &amp; y) : z
+</pre></section><section data-level="h2"><h2>Expression Macros Continued</h2><p>The usual fix is to put parentheses around the entire macro body (fixing the
+first problem above) as well as the use of each macro parameter (fixing the 
+second problem above):
+</p><pre class="hljs language-javascript">  #define min(a, b)  (((a) &lt; (b)) ? (a) : (b))
+</pre><p>But even with the new definition, in <code>min(a++, b)</code>, <code>a</code> may be incremented
+once or twice!!.
+</p><p>Also, consider the expansion of <code>min(a, min(b, min(c, d)))</code>: 
+</p><pre>  (((a) &lt; ((((b) &lt; ((((c) &lt; (d)) ? (c) : (d)))) 
+   ? (b) : ((((c) &lt; (d)) ? (c) : (d)))))) ? (a) 
+   : ((((b) &lt; ((((c) &lt; (d)) ? (c) : (d)))) ? (b) 
+   : ((((c) &lt; (d)) ? (c) : (d))))))
+</pre><p><strong>Moral</strong>: use functions rather than function-like macros whenever possible.
+Especially, with availability of inline functions in C99.
+</p></section><section data-level="h2"><h2>Statement Macros</h2><p>Consider following definition:
+</p><pre class="hljs language-javascript">  #define dump(x) \
+    fprintf(stderr, &quot;%d\n&quot;, x); exit(1);
+</pre><p>We'd like to use <code>dump()</code> like a procedure.  But consider:
+</p><pre class="hljs language-javascript">  if (a&lt;0) dump(a); else a = 1;
+</pre><p>which expands to:
+</p><pre class="hljs language-javascript">  if (a &lt; 0)
+    fprintf(stderr, &quot;%d\n&quot;, a); exit(1);; else a = 1;
+</pre><p>with an extra <code>;</code>.  This is a syntax error (unmatched <code>else</code>).
+</p></section><section data-level="h2"><h2>Statement Macros Continued</h2><p>Consider putting braces around the macro body:
+</p><pre class="hljs language-javascript">  #define dump(x) \
+    { fprintf(stderr, &quot;%d\n&quot;, x); exit(1); }
+</pre><p>That would still cause problems in:
+</p><pre class="hljs language-javascript">  if (a&lt;0) dump(a); else a = 1;
+</pre><p>which would expand to:
+</p><pre class="hljs language-javascript">  if (a &lt; 0) { fprintf(stderr, &quot;%d\n&quot;, a); exit(1); }; 
+  else a = 1;
+</pre><p>which would still have an extra <code>;</code> and syntax error.
+</p></section><section data-level="h2"><h2>Statement Macros Continued</h2><p>A solution (which is a standard idiom) is to wrap the macro body in
+<code>do-while(0)</code>:
+</p><pre class="hljs language-javascript">  #define dump(x) \
+    do { fprintf(stderr, &quot;%d\n&quot;, x); exit(1); \
+    } while (0)
+</pre><p>with 
+</p><pre class="hljs language-javascript">  if (a&lt;0) dump(a); else a = 1;
+</pre><p>expanding to:
+</p><pre class="hljs language-javascript">  if (a&lt;0) 
+    do { fprintf(stderr, &quot;%d\n&quot;, x); exit(1); } while (0); 
+  else a = 1;
+</pre><p>with the <code>;</code> being absorbed by the <code>do-while</code>.  
+</p></section><section data-level="h2"><h2>Token Stringification and Concatenation Example Motivation</h2><p>ANSI-C introduced <code>#</code> for stringification and <code>##</code> for token
+concatenation.  Check exact semantics which are quite complex.
+</p><p>Following example illustrates two points:
+</p><ul><li><p>Important: <strong>Don't Repeat Yourself</strong> (DRY) principle.  Something to keep in
+    mind in all programming, irrespective of programming language.
+</p></li><li><p>Trivial: C preprocessor token stringification and concatenation features
+    which are relatively obscure C preprocessor features.
+</p></li></ul><p>Similar idea used in Fraser and Hanson's <code>lcc</code> compiler.
+</p></section><section data-level="h2"><h2>Token Stringification and Concatenation Example</h2><p>Consider defining a set of <code>enum</code>s:
+</p><pre class="hljs language-javascript">  typedef enum { RED_C, BLUE_C, GREEN_C, ... } Color;
+</pre><p>To print out a color, we could print out the <code>enum</code> value:
+</p><pre class="hljs language-javascript">  Color c = BLUE_C;
+  printf(&quot;c = %d\n&quot;, c);
+</pre><p>which would print out a <code>1</code>, which is difficult to interpret.
+</p></section><section data-level="h2"><h2>Token Stringification and Concatenation Example Continued</h2><p>One solution is to define an array of color-names in parallel with the
+<code>enum</code>:
+</p><pre class="hljs language-javascript">  typedef enum { RED_C, BLUE_C, GREEN_C, ... } Color.
+  const char *colors[] = { &quot;RED&quot;, &quot;BLUE&quot;, &quot;GREEN&quot;, ... };
+</pre><p>To print out a color we could print out the corresponding array value:
+</p><pre class="hljs language-javascript">  Color c = BLUE_C;
+  printf(&quot;c = %s\n&quot;, colors[c]);
+</pre><p>which would print out <code>BLUE</code> which is meaningful.
+</p></section><section data-level="h2"><h2>Token Stringification and Concatenation Example Continued</h2><p>But the problem is that the <code>colors[]</code> array must be consistent with
+the <code>enum</code>.  If we changed the <code>enum</code> but forgot to change the <code>colors[]</code>
+array:
+</p><pre class="hljs language-javascript">  typedef enum { WHITE_C, RED_C, BLUE_C, GREEN_C, ... } Color.
+  const char *colors[] = { &quot;RED&quot;, &quot;BLUE&quot;, &quot;GREEN&quot;, ... };
+</pre><p>we would get incorrect results:
+</p><pre class="hljs language-javascript">  Color c = BLUE_C;
+  printf(&quot;c = %s\n&quot;, colors[c]);
+</pre><p>would print <code>GREEN</code>!
+</p></section><section data-level="h2"><h2>Token Stringification and Concatenation Example Continued</h2><p>A solution (  <a href="./code/enum-strings.c">&lt;./code/enum-strings.c></a>) is to list the color names in
+a single place, and have the C preprocessor generate the <code>enum</code> and
+<code>colors[]</code> array automatically:
+</p><pre class="hljs language-javascript">  #define COLORS \
+    T(RED), \
+    T(BLUE), \
+    T(GREEN), \
+    ...
+</pre><p>To define the <code>enum</code>:
+</p><pre class="hljs language-javascript">  #undef T
+  #define T(c) c ## _C  //concat: T(RED) is RED_C
+  typedef enum { COLORS N_COLORS } Color; 
+</pre><p>where N_COLORS serves to absorb the last <code>,</code> as well as provide a symbol
+giving the # of colors.
+</p></section><section data-level="h2"><h2>Token Stringification and Concatenation Example Continued</h2><p>To define the <code>colors[]</code> array:
+</p><pre class="hljs language-javascript">  #undef T
+  #define T(c) #c  //stringify: T(RED) is &quot;RED&quot;
+  const char *colors[] = { COLORS };
+</pre><p>Note that array initialization syntax permits a trailing <code>,</code>.
+</p></section><section data-level="h2"><h2>References</h2><p>Christopher Fraser and David Hanson <em>A Retargetable C Compiler: Design and
+Implementation</em>, Addison-Wesley, 1995. 
+</p><p>Steve Friedl, <em>Reading C type declarations</em>, at
+&lt;http://www.unixwiz.net/techtips/reading-cdecl.html>
+</p><p>Samuel P. Harbison and Guy L. Steele Jr., <em>C: A Reference Manual</em>, 5th
+Edition, Prentice-Hall, 2002.
+</p><p>Brian W. Kernighan and Dennis M. Ritchie, <em>The C Programming Language</em>, 2nd
+Edition, Prentice-Hall, 1988.
+</p><p>Andrew Koenig, <em>C Traps and Pitfalls</em>, Addison-Wesley, 1989.
+</p><p>Rob Pike,  <a href="http://www.lysator.liu.se/c/pikestyle.html">Notes on
+Programming in C</a>, at Written in 1989, but still worth a read; I
+disagree on not using camel-cased identifiers and the section on
+include files.
+</p></section><section data-level="h2"><h2>References Continued</h2><p>Steve Summit, <em>C Programming FAQs</em>, Addison-Wesley, Nov. 1995.
+Partially online at  <a href="http://www.eskimo.com/~scs/C-faq/top.html">&lt;http://www.eskimo.com/~scs/C-faq/top.html></a>.
+</p><p>Peter Van Der Linden, <em>Expert C Programming: Deep C Secrets</em>, 
+Prentice-Hall, 1994.
+</p><p> <a href="http://www.open-std.org/JTC1/SC22/WG14/www/docs/n1256.pdf">C99
+Draft Standard</a>.
+</p><p> <a href="http://www.open-std.org/jtc1/sc22/WG14/www/docs/n1570.pdf">C11 Draft Standard</a>.
+</p><p> <a href="http://www.memorymanagement.org">Memory Management Reference</a>
+</p><p> <a href="http://www.slideshare.net/olvemaudal/deep-c/">Deep C</a>. Strongly recommended.
+</p><p>Lockheed Martin Corporation,  <a href="http://www.stroustrup.com/JSF-AV-rules.pdf">Joint Strike Fighter Air Vehicle C++ Coding
+Standards for the System Development and Demonstration Program</a>, Dec, 2005
+</p><p> <a href="http://caxapa.ru/thumbs/468328/misra-c-2004.pdf">2004 MISRA C
+Standard</a>, guidelines for automotive programming.  Newer version
+of the standard is also available at the MISRA web site.  
+207.%20MISRA-C%20rules.pdf> Summary of standard %
+</p></section><section data-level="h2"><h2>References Continued</h2><p>Quantum Leaps,  <a href="https://www.state-machine.com/doc/AN_OOP_in_C.pdf">OOP in C</a>.
+</p><p>Axel Tobias-Schreiner,  <a href="https://www.cs.rit.edu/~ats/books/ooc.pdf">Object-Oriented Programming in ANSI-C</a>, Pearson, 1999.
+</p></section></section></div>
+    </div>
+
+    <script type="module" src="../../assets/scripts/slide-controls.mjs"></script>
+    <script type="module" src="../../assets/scripts/nav.mjs"></script> 
+    <script type="module" src="../../assets/scripts/highlight.mjs"></script>
+</body>
+</html>
+
